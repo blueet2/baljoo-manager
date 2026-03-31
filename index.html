@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>소모품 발주 관리 시스템</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --border: #e2e0d8;
+    --text: #1a1a1a;
+    --text-muted: #888880;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --warn: #d97706;
+    --warn-light: #fffbeb;
+    --danger: #dc2626;
+    --danger-light: #fef2f2;
+    --success: #16a34a;
+    --success-light: #f0fdf4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo span { color: var(--accent); }
+
+  nav { display: flex; gap: 2px; }
+  nav button {
+    padding: 6px 14px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+  nav button:hover { background: var(--bg); color: var(--text); }
+  nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .page-title { font-size: 18px; font-weight: 600; margin-bottom: 1.5rem; }
+
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+  @media(max-width:600px){ .cards { grid-template-columns: repeat(2,1fr); } }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+  }
+  .metric-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .metric-value { font-size: 26px; font-weight: 600; }
+  .metric-value.warn { color: var(--warn); }
+  .metric-value.danger { color: var(--danger); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+  .form-group input, .form-group select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--bg);
+    color: var(--text);
+    transition: border 0.15s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; }
+  .btn {
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-ok { background: var(--success-light); color: var(--success); }
+  .badge-warn { background: var(--warn-light); color: var(--warn); }
+  .badge-danger { background: var(--danger-light); color: var(--danger); }
+  .badge-info { background: var(--accent-light); color: var(--accent); }
+
+  .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
+
+  .rec-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .rec-item.urgent { border-left: 3px solid var(--danger); }
+  .rec-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .rec-detail { font-size: 12px; color: var(--text-muted); }
+
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a1a;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .config-box {
+    background: var(--warn-light);
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 13px;
+    color: #92400e;
+  }
+  .config-box strong { display: block; margin-bottom: 4px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📦 <span>발주</span>관리</div>
+  <nav>
+    <button class="active" onclick="switchTab('dashboard', this)">대시보드</button>
+    <button onclick="switchTab('order', this)">발주 등록</button>
+    <button onclick="switchTab('receive', this)">입고 등록</button>
+    <button onclick="switchTab('history', this)">발주 이력</button>
+    <button onclick="switchTab('items', this)">품목/업체</button>
+    <button onclick="switchTab('recommend', this)">발주 추천</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- 설정 안내 -->
+  <div class="config-box" id="config-warn" style="display:none">
+    <strong>⚠️ Supabase 연결 설정이 필요해요!</strong>
+    이 파일의 상단 SUPABASE_URL과 SUPABASE_KEY를 본인 것으로 바꿔주세요.
+  </div>
+
+  <!-- 대시보드 -->
+  <div id="dashboard" class="section active">
+    <div class="page-title">대시보드</div>
+    <div class="cards">
+      <div class="metric"><div class="metric-label">전체 품목</div><div class="metric-value" id="m-total">-</div></div>
+      <div class="metric"><div class="metric-label">재고 부족</div><div class="metric-value danger" id="m-low">-</div></div>
+      <div class="metric"><div class="metric-label">이번달 발주</div><div class="metric-value" id="m-month">-</div></div>
+      <div class="metric"><div class="metric-label">미입고 건수</div><div class="metric-value warn" id="m-pending">-</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">재고 현황</div>
+      <table>
+        <thead><tr><th>품목명</th><th>업체</th><th>현재 재고</th><th>최소 기준</th><th>상태</th></tr></thead>
+        <tbody id="stock-table"><tr><td colspan="5" class="empty">로딩 중...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 발주 등록 -->
+  <div id="order" class="section">
+    <div class="page-title">발주 요청 등록</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>품목 선택</label>
+          <select id="o-item" onchange="fillOrderVendor()"><option value="">선택하세요</option></select>
+        </div>
+        <div class="form-group"><label>발주 업체</label><input id="o-vendor" readonly placeholder="품목 선택 시 자동입력"></div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group"><label>발주 수량</label><input id="o-qty" type="number" min="1" placeholder="수량"></div>
+        <div class="form-group"><label>단위</label><input id="o-unit" readonly placeholder="자동입력"></div>
+        <div class="form-group"><label>발주 예정일</label><input id="o-date" type="date"></div>
+      </div>
+      <div class="form-group"><label>비고</label><input id="o-note" placeholder="메모 (선택)"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
+    </div>
+  </div>
+
+  <!-- 입고 등록 -->
+  <div id="receive" class="section">
+    <div class="page-title">입고 내역 등록</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>발주 건 선택</label>
+          <select id="r-order"><option value="">선택하세요</option></select>
+        </div>
+        <div class="form-group"><label>입고일</label><input id="r-date" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>입고 수량</label><input id="r-qty" type="number" min="1" placeholder="수량"></div>
+        <div class="form-group"><label>비고</label><input id="r-note" placeholder="메모 (선택)"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addReceive()">입고 등록</button></div>
+    </div>
+  </div>
+
+  <!-- 발주 이력 -->
+  <div id="history" class="section">
+    <div class="page-title">발주 이력</div>
+    <div class="card">
+      <table>
+        <thead><tr><th>발주일</th><th>품목</th><th>업체</th><th>수량</th><th>상태</th></tr></thead>
+        <tbody id="history-table"><tr><td colspan="5" class="empty">로딩 중...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 품목/업체 -->
+  <div id="items" class="section">
+    <div class="page-title">품목 / 업체 관리</div>
+    <div class="card">
+      <div class="card-title">새 품목 추가</div>
+      <div class="form-row three">
+        <div class="form-group"><label>품목명</label><input id="i-name" placeholder="예: A4용지"></div>
+        <div class="form-group"><label>업체명</label><input id="i-vendor" placeholder="예: 문구나라"></div>
+        <div class="form-group"><label>단위</label><input id="i-unit" placeholder="예: 박스, 개, 롤"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>현재 재고</label><input id="i-stock" type="number" min="0" placeholder="0"></div>
+        <div class="form-group"><label>최소 재고 (발주 기준)</label><input id="i-min" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addItem()">품목 추가</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">등록된 품목</div>
+      <table>
+        <thead><tr><th>품목명</th><th>업체</th><th>단위</th><th>현재 재고</th><th>최소 재고</th><th>삭제</th></tr></thead>
+        <tbody id="items-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 발주 추천 -->
+  <div id="recommend" class="section">
+    <div class="page-title">발주 추천</div>
+    <div id="rec-list"></div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// =====================================================
+// 🔧 여기를 본인 Supabase 정보로 바꿔주세요!
+const SUPABASE_URL = 'https://woohpuhljpamgappqcdu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ejGOFSAgF8_lvoNtq-EL2g_h4LHRGYr';
+// =====================================================
+
+const headers = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': `Bearer ${SUPABASE_KEY}`,
+  'Prefer': 'return=representation'
+};
+
+async function api(path, method='GET', body=null) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : null
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'order') loadOrderForm();
+  if (id === 'receive') loadReceiveForm();
+  if (id === 'history') loadHistory();
+  if (id === 'items') loadItems();
+  if (id === 'recommend') loadRecommend();
+}
+
+// 대시보드
+async function loadDashboard() {
+  const [items, orders] = await Promise.all([
+    api('items?select=*'),
+    api('orders?select=*')
+  ]);
+  const low = items.filter(i => i.stock <= i.min_stock).length;
+  const now = new Date();
+  const monthOrders = orders.filter(o => {
+    const d = new Date(o.order_date);
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const pending = orders.filter(o => o.status === '발주중').length;
+  document.getElementById('m-total').textContent = items.length;
+  document.getElementById('m-low').textContent = low;
+  document.getElementById('m-month').textContent = monthOrders;
+  document.getElementById('m-pending').textContent = pending;
+  const tb = document.getElementById('stock-table');
+  tb.innerHTML = items.length === 0
+    ? '<tr><td colspan="5" class="empty">품목/업체 탭에서 품목을 먼저 등록해주세요</td></tr>'
+    : items.map(i => {
+        const ok = i.stock > i.min_stock;
+        return `<tr>
+          <td>${i.name}</td><td>${i.vendor}</td>
+          <td>${i.stock}${i.unit}</td><td>${i.min_stock}${i.unit}</td>
+          <td><span class="badge ${ok ? 'badge-ok' : 'badge-danger'}">${ok ? '정상' : '부족'}</span></td>
+        </tr>`;
+      }).join('');
+}
+
+// 품목 관리
+async function loadItems() {
+  const items = await api('items?select=*&order=created_at.desc');
+  const sel = document.getElementById('items-table');
+  sel.innerHTML = items.length === 0
+    ? '<tr><td colspan="6" class="empty">등록된 품목이 없어요</td></tr>'
+    : items.map(i => `<tr>
+        <td>${i.name}</td><td>${i.vendor}</td><td>${i.unit}</td>
+        <td>${i.stock}</td><td>${i.min_stock}</td>
+        <td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td>
+      </tr>`).join('');
+}
+
+async function addItem() {
+  const name = document.getElementById('i-name').value.trim();
+  const vendor = document.getElementById('i-vendor').value.trim();
+  const unit = document.getElementById('i-unit').value.trim() || '개';
+  const stock = parseInt(document.getElementById('i-stock').value) || 0;
+  const min_stock = parseInt(document.getElementById('i-min').value) || 0;
+  if (!name || !vendor) { showToast('품목명과 업체명을 입력해주세요'); return; }
+  await api('items', 'POST', { name, vendor, unit, stock, min_stock });
+  ['i-name','i-vendor','i-unit','i-stock','i-min'].forEach(id => document.getElementById(id).value = '');
+  showToast('품목이 추가되었어요!');
+  loadItems();
+}
+
+async function deleteItem(id) {
+  if (!confirm('정말 삭제할까요?')) return;
+  await api(`items?id=eq.${id}`, 'DELETE');
+  showToast('삭제되었어요');
+  loadItems();
+}
+
+// 발주 등록
+async function loadOrderForm() {
+  const items = await api('items?select=*');
+  const sel = document.getElementById('o-item');
+  sel.innerHTML = '<option value="">선택하세요</option>' +
+    items.map(i => `<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}">${i.name}</option>`).join('');
+  document.getElementById('o-date').value = today();
+  window._orderItems = items;
+}
+
+function fillOrderVendor() {
+  const sel = document.getElementById('o-item');
+  const opt = sel.options[sel.selectedIndex];
+  document.getElementById('o-vendor').value = opt.dataset.vendor || '';
+  document.getElementById('o-unit').value = opt.dataset.unit || '';
+}
+
+async function addOrder() {
+  const item_id = parseInt(document.getElementById('o-item').value);
+  const qty = parseInt(document.getElementById('o-qty').value);
+  const order_date = document.getElementById('o-date').value;
+  const note = document.getElementById('o-note').value;
+  if (!item_id || !qty || qty < 1) { showToast('품목과 수량을 입력해주세요'); return; }
+  const item = (window._orderItems || []).find(i => i.id === item_id);
+  await api('orders', 'POST', {
+    item_id, item_name: item.name, vendor: item.vendor,
+    unit: item.unit, qty, order_date, note, status: '발주중'
+  });
+  document.getElementById('o-qty').value = '';
+  document.getElementById('o-note').value = '';
+  showToast('발주가 등록되었어요!');
+}
+
+// 입고 등록
+async function loadReceiveForm() {
+  const orders = await api("orders?select=*&status=eq.발주중&order=created_at.desc");
+  const sel = document.getElementById('r-order');
+  sel.innerHTML = '<option value="">선택하세요</option>' +
+    orders.map(o => `<option value="${o.id}" data-item="${o.item_name}" data-vendor="${o.vendor}" data-unit="${o.unit}">[${o.order_date}] ${o.item_name} ${o.qty}${o.unit}</option>`).join('');
+  document.getElementById('r-date').value = today();
+  window._pendingOrders = orders;
+}
+
+async function addReceive() {
+  const order_id = parseInt(document.getElementById('r-order').value);
+  const qty = parseInt(document.getElementById('r-qty').value);
+  const receive_date = document.getElementById('r-date').value;
+  const note = document.getElementById('r-note').value;
+  if (!order_id || !qty || qty < 1) { showToast('발주 건과 수량을 입력해주세요'); return; }
+  const order = (window._pendingOrders || []).find(o => o.id === order_id);
+  await api('receives', 'POST', {
+    order_id, item_name: order.item_name, vendor: order.vendor,
+    unit: order.unit, qty, receive_date, note
+  });
+  await api(`orders?id=eq.${order_id}`, 'PATCH', { status: '입고완료' });
+  await api(`items?id=eq.${order.item_id}`, 'PATCH', { stock: order.stock + qty });
+  document.getElementById('r-qty').value = '';
+  document.getElementById('r-note').value = '';
+  showToast('입고가 등록되었어요!');
+  loadReceiveForm();
+}
+
+// 발주 이력
+async function loadHistory() {
+  const orders = await api('orders?select=*&order=created_at.desc');
+  const tb = document.getElementById('history-table');
+  tb.innerHTML = orders.length === 0
+    ? '<tr><td colspan="5" class="empty">발주 이력이 없어요</td></tr>'
+    : orders.map(o => `<tr>
+        <td>${o.order_date}</td><td>${o.item_name}</td><td>${o.vendor}</td>
+        <td>${o.qty}${o.unit}</td>
+        <td><span class="badge ${o.status === '입고완료' ? 'badge-ok' : 'badge-info'}">${o.status}</span></td>
+      </tr>`).join('');
+}
+
+// 발주 추천
+async function loadRecommend() {
+  const [items, orders] = await Promise.all([
+    api('items?select=*'),
+    api('orders?select=*&status=eq.입고완료')
+  ]);
+  const list = document.getElementById('rec-list');
+  if (items.length === 0) {
+    list.innerHTML = '<p style="color:#888;font-size:14px">품목을 먼저 등록하면 추천이 표시돼요.</p>';
+    return;
+  }
+  list.innerHTML = items.map(item => {
+    const urgent = item.stock <= item.min_stock;
+    const itemOrders = orders.filter(o => o.item_id === item.id);
+    let cycleText = '발주 이력이 쌓이면 주기를 알려드려요';
+    if (itemOrders.length >= 2) {
+      const dates = itemOrders.map(o => new Date(o.order_date)).sort((a,b) => a-b);
+      const gaps = [];
+      for (let i = 1; i < dates.length; i++) gaps.push((dates[i]-dates[i-1])/(1000*60*60*24));
+      const avg = Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
+      cycleText = `평균 발주 주기: 약 ${avg}일`;
+    }
+    return `<div class="rec-item ${urgent ? 'urgent' : ''}">
+      <div>
+        <div class="rec-name">${item.name} <span style="font-weight:400;color:#888;font-size:12px">${item.vendor}</span></div>
+        <div class="rec-detail">현재 재고 ${item.stock}${item.unit} / 최소 기준 ${item.min_stock}${item.unit}</div>
+        <div class="rec-detail">${cycleText}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="badge ${urgent ? 'badge-danger' : 'badge-ok'}">${urgent ? '즉시 발주 필요' : '재고 양호'}</span>
+        ${urgent ? `<button class="btn btn-sm" onclick="document.querySelector('nav button:nth-child(2)').click()">발주하기</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 초기화
+if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+  document.getElementById('config-warn').style.display = 'block';
+} else {
+  loadDashboard();
+}
+</script>
+</body>
+</html>
