@@ -253,6 +253,7 @@ function renderNav() {
       <button onclick="switchTab('items', this)">품목/업체</button>
       <button onclick="switchTab('recommend', this)">발주 필요</button>
       <button onclick="switchTab('users', this)">사용자 관리</button>
+      <button onclick="switchTab('upload', this)">데이터 업로드</button>
     `;
   } else {
     nav.innerHTML = `
@@ -278,6 +279,7 @@ function switchTab(id, btn) {
   else if (id === 'items') renderItems();
   else if (id === 'recommend') renderRecommend();
   else if (id === 'users') renderUsers();
+  else if (id === 'upload') renderUpload();
 }
 
 function renderUserHome() { renderOrder(); }
@@ -312,7 +314,7 @@ async function renderAdminDashboard() {
 // ── 발주 등록 ──
 async function renderOrder() {
   const items = await api('items?select=*');
-  const opts = items.map(i => `<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}">${i.name}</option>`).join('');
+  const opts = items.map(i => `<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}" data-category="${i.category||'소모품'}" data-subcategory="${i.sub_category||'기타'}">${i.name}</option>`).join('');
   renderMain(`<div class="page-title">발주 요청 등록</div>
     <div class="card">
       <div class="form-row">
@@ -320,11 +322,25 @@ async function renderOrder() {
         <div class="form-group"><label>발주 업체</label><input id="o-vendor" readonly placeholder="품목 선택 시 자동입력"></div>
       </div>
       <div class="form-row three">
+        <div class="form-group"><label>대분류</label><select id="o-category">
+          <option value="소모품">소모품</option><option value="비품">비품</option>
+        </select></div>
+        <div class="form-group"><label>소분류</label><select id="o-subcategory">
+          <option value="기타">기타</option><option value="기계장비">기계장비</option>
+          <option value="수선비">수선비</option><option value="잉크/리본">잉크/리본</option>
+          <option value="와이퍼">와이퍼</option><option value="필터">필터</option>
+        </select></div>
+        <div class="form-group"><label>부서명</label><input id="o-department" placeholder="예: 고형제제조1팀"></div>
+      </div>
+      <div class="form-row three">
         <div class="form-group"><label>발주 수량</label><input id="o-qty" type="number" min="1" placeholder="수량"></div>
         <div class="form-group"><label>단위</label><input id="o-unit" readonly placeholder="자동입력"></div>
-        <div class="form-group"><label>발주 예정일</label><input id="o-date" type="date" value="${today()}"></div>
+        <div class="form-group"><label>금액 (만원)</label><input id="o-amount" type="number" step="0.1" placeholder="0.0"></div>
       </div>
-      <div class="form-group"><label>비고</label><input id="o-note" placeholder="메모 (선택)"></div>
+      <div class="form-row">
+        <div class="form-group"><label>발주 예정일</label><input id="o-date" type="date" value="${today()}"></div>
+        <div class="form-group"><label>비고 (적요)</label><input id="o-note" placeholder="상세 내용 입력"></div>
+      </div>
       <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
     </div>`);
   window._orderItems = items;
@@ -335,6 +351,8 @@ function fillOrderVendor() {
   const opt = sel.options[sel.selectedIndex];
   document.getElementById('o-vendor').value = opt.dataset.vendor || '';
   document.getElementById('o-unit').value = opt.dataset.unit || '';
+  if (opt.dataset.category) document.getElementById('o-category').value = opt.dataset.category;
+  if (opt.dataset.subcategory) document.getElementById('o-subcategory').value = opt.dataset.subcategory;
 }
 
 async function addOrder() {
@@ -342,12 +360,17 @@ async function addOrder() {
   const qty = parseInt(document.getElementById('o-qty').value);
   const order_date = document.getElementById('o-date').value;
   const note = document.getElementById('o-note').value;
+  const category = document.getElementById('o-category').value;
+  const sub_category = document.getElementById('o-subcategory').value;
+  const department = document.getElementById('o-department').value;
+  const amount = parseFloat(document.getElementById('o-amount').value) || 0;
   if (!item_id || !qty || qty < 1) { showToast('품목과 수량을 입력해주세요'); return; }
   const item = (window._orderItems || []).find(i => i.id === item_id);
-  await api('orders', 'POST', { item_id, item_name: item.name, vendor: item.vendor, unit: item.unit, qty, order_date, note, status: '발주중', created_by: currentUserName });
+  await api('orders', 'POST', { item_id, item_name: item.name, vendor: item.vendor, unit: item.unit, qty, order_date, note, status: '발주중', created_by: currentUserName, category, sub_category, department, amount });
   showToast('발주가 등록되었어요!');
   document.getElementById('o-qty').value = '';
   document.getElementById('o-note').value = '';
+  document.getElementById('o-amount').value = '';
 }
 
 // ── 입고 등록 ──
@@ -388,13 +411,61 @@ async function addReceive() {
 async function renderHistory() {
   renderMain(`<div class="page-title">발주 이력</div>
     <div class="card">
-      <table><thead><tr><th>발주일</th><th>품목</th><th>업체</th><th>수량</th><th>등록자</th><th>상태</th></tr></thead>
-      <tbody id="history-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
+      <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
+        <select id="h-category" onchange="filterHistory()" style="font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
+          <option value="">전체 대분류</option>
+          <option value="소모품">소모품</option><option value="비품">비품</option>
+        </select>
+        <select id="h-subcategory" onchange="filterHistory()" style="font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
+          <option value="">전체 소분류</option>
+          <option value="기타">기타</option><option value="기계장비">기계장비</option>
+          <option value="수선비">수선비</option><option value="잉크/리본">잉크/리본</option>
+          <option value="와이퍼">와이퍼</option><option value="필터">필터</option>
+        </select>
+        <select id="h-department" onchange="filterHistory()" style="font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
+          <option value="">전체 부서</option>
+        </select>
+      </div>
+      <table><thead><tr><th>발주일</th><th>대분류</th><th>소분류</th><th>품목 (적요)</th><th>업체</th><th>수량</th><th>금액(만원)</th><th>부서</th><th>등록자</th><th>상태</th></tr></thead>
+      <tbody id="history-table"><tr><td colspan="10" class="empty">로딩 중...</td></tr></tbody></table>
+      <div id="history-total" style="text-align:right;padding:10px 12px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border)"></div>
     </div>`);
-  const orders = await api('orders?select=*&order=created_at.desc');
+  const orders = await api('orders?select=*&order=order_date.desc');
+  window._allOrders = orders;
+  const depts = [...new Set(orders.map(o => o.department).filter(Boolean))];
+  const deptSel = document.getElementById('h-department');
+  depts.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; deptSel.appendChild(opt); });
+  renderHistoryTable(orders);
+}
+
+function filterHistory() {
+  const cat = document.getElementById('h-category').value;
+  const sub = document.getElementById('h-subcategory').value;
+  const dept = document.getElementById('h-department').value;
+  let filtered = (window._allOrders || []);
+  if (cat) filtered = filtered.filter(o => o.category === cat);
+  if (sub) filtered = filtered.filter(o => o.sub_category === sub);
+  if (dept) filtered = filtered.filter(o => o.department === dept);
+  renderHistoryTable(filtered);
+}
+
+function renderHistoryTable(orders) {
+  const total = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
   document.getElementById('history-table').innerHTML = orders.length === 0
-    ? '<tr><td colspan="6" class="empty">발주 이력이 없어요</td></tr>'
-    : orders.map(o => `<tr><td>${o.order_date}</td><td>${o.item_name}</td><td>${o.vendor}</td><td>${o.qty}${o.unit}</td><td style="color:var(--text-muted)">${o.created_by||'-'}</td><td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-info'}">${o.status}</span></td></tr>`).join('');
+    ? '<tr><td colspan="10" class="empty">발주 이력이 없어요</td></tr>'
+    : orders.map(o => `<tr>
+        <td>${o.order_date}</td>
+        <td><span class="badge badge-info">${o.category||'-'}</span></td>
+        <td style="color:var(--text-muted)">${o.sub_category||'-'}</td>
+        <td>${o.item_name}${o.note?`<br><span style="font-size:11px;color:var(--text-muted)">${o.note}</span>`:''}</td>
+        <td>${o.vendor}</td>
+        <td>${o.qty}${o.unit}</td>
+        <td style="text-align:right">${o.amount?parseFloat(o.amount).toFixed(1):'-'}</td>
+        <td style="color:var(--text-muted)">${o.department||'-'}</td>
+        <td style="color:var(--text-muted)">${o.created_by||'-'}</td>
+        <td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-info'}">${o.status}</span></td>
+      </tr>`).join('');
+  document.getElementById('history-total').textContent = `총 ${orders.length}건 / 합계 금액: ${total.toFixed(1)}만원`;
 }
 
 // ── 품목/업체 관리 (관리자) ──
@@ -406,15 +477,25 @@ async function renderItems() {
         <div class="form-group"><label>업체명</label><input id="i-vendor" placeholder="예: 문구나라"></div>
         <div class="form-group"><label>단위</label><input id="i-unit" placeholder="예: 박스, 개, 롤"></div>
       </div>
-      <div class="form-row">
+      <div class="form-row three">
+        <div class="form-group"><label>대분류</label><select id="i-category">
+          <option value="소모품">소모품</option><option value="비품">비품</option>
+        </select></div>
+        <div class="form-group"><label>소분류</label><select id="i-subcategory">
+          <option value="기타">기타</option><option value="기계장비">기계장비</option>
+          <option value="수선비">수선비</option><option value="잉크/리본">잉크/리본</option>
+          <option value="와이퍼">와이퍼</option><option value="필터">필터</option>
+        </select></div>
         <div class="form-group"><label>현재 재고</label><input id="i-stock" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="form-row">
         <div class="form-group"><label>최소 재고 (발주 기준)</label><input id="i-min" type="number" min="0" placeholder="0"></div>
       </div>
       <div class="btn-row"><button class="btn btn-primary" onclick="addItem()">품목 추가</button></div>
     </div>
     <div class="card"><div class="card-title">등록된 품목</div>
-      <table><thead><tr><th>품목명</th><th>업체</th><th>단위</th><th>현재 재고</th><th>최소 재고</th><th>삭제</th></tr></thead>
-      <tbody id="items-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
+      <table><thead><tr><th>품목명</th><th>대분류</th><th>소분류</th><th>업체</th><th>단위</th><th>현재 재고</th><th>최소 재고</th><th>삭제</th></tr></thead>
+      <tbody id="items-table"><tr><td colspan="8" class="empty">로딩 중...</td></tr></tbody></table>
     </div>`);
   loadItemsTable();
 }
@@ -422,8 +503,14 @@ async function renderItems() {
 async function loadItemsTable() {
   const items = await api('items?select=*&order=created_at.desc');
   document.getElementById('items-table').innerHTML = items.length === 0
-    ? '<tr><td colspan="6" class="empty">등록된 품목이 없어요</td></tr>'
-    : items.map(i => `<tr><td>${i.name}</td><td>${i.vendor}</td><td>${i.unit}</td><td>${i.stock}</td><td>${i.min_stock}</td><td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td></tr>`).join('');
+    ? '<tr><td colspan="8" class="empty">등록된 품목이 없어요</td></tr>'
+    : items.map(i => `<tr>
+        <td>${i.name}</td>
+        <td><span class="badge badge-info">${i.category||'소모품'}</span></td>
+        <td style="color:var(--text-muted)">${i.sub_category||'기타'}</td>
+        <td>${i.vendor}</td><td>${i.unit}</td><td>${i.stock}</td><td>${i.min_stock}</td>
+        <td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td>
+      </tr>`).join('');
 }
 
 async function addItem() {
@@ -432,8 +519,10 @@ async function addItem() {
   const unit = document.getElementById('i-unit').value.trim() || '개';
   const stock = parseInt(document.getElementById('i-stock').value) || 0;
   const min_stock = parseInt(document.getElementById('i-min').value) || 0;
+  const category = document.getElementById('i-category').value;
+  const sub_category = document.getElementById('i-subcategory').value;
   if (!name || !vendor) { showToast('품목명과 업체명을 입력해주세요'); return; }
-  await api('items', 'POST', { name, vendor, unit, stock, min_stock });
+  await api('items', 'POST', { name, vendor, unit, stock, min_stock, category, sub_category });
   ['i-name','i-vendor','i-unit','i-stock','i-min'].forEach(id => document.getElementById(id).value = '');
   showToast('품목이 추가되었어요!'); loadItemsTable();
 }
@@ -504,6 +593,139 @@ async function loadUsersTable() {
           }</td>
         </tr>`;
       }).join('');
+}
+
+// ── 데이터 업로드 (관리자) ──
+function renderUpload() {
+  renderMain(`<div class="page-title">데이터 업로드</div>
+    <div class="card">
+      <div class="card-title">📥 템플릿 다운로드</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">아래 버튼으로 템플릿을 받아서 데이터를 입력한 후 업로드해주세요.</p>
+      <a href="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit" target="_blank" style="display:none"></a>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="downloadTemplate()">📄 엑셀 템플릿 받기</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 품목/업체 업로드</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">템플릿의 <strong>품목_업체</strong> 시트를 CSV로 저장 후 업로드해주세요.</p>
+      <input type="file" id="items-file" accept=".csv" style="font-size:13px;margin-bottom:12px">
+      <div id="items-preview" style="margin-bottom:12px"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="uploadItems()">품목 업로드</button></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 발주이력 업로드</div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">템플릿의 <strong>발주이력</strong> 시트를 CSV로 저장 후 업로드해주세요.</p>
+      <input type="file" id="orders-file" accept=".csv" style="font-size:13px;margin-bottom:12px">
+      <div id="orders-preview" style="margin-bottom:12px"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="uploadOrders()">발주이력 업로드</button></div>
+    </div>
+
+    <div class="card" style="background:var(--accent-light);border-color:#bfdbfe">
+      <div class="card-title" style="color:var(--accent)">💡 CSV 저장 방법</div>
+      <p style="font-size:13px;color:#1e40af;line-height:1.8">
+        1. 엑셀에서 해당 시트 열기<br>
+        2. 예시 행 삭제 후 실제 데이터 입력<br>
+        3. <strong>파일 → 다른 이름으로 저장 → CSV (쉼표로 분리)</strong> 선택<br>
+        4. 위 업로드 버튼으로 파일 선택
+      </p>
+    </div>`);
+
+  document.getElementById('items-file').addEventListener('change', e => previewCSV(e, 'items-preview'));
+  document.getElementById('orders-file').addEventListener('change', e => previewCSV(e, 'orders-preview'));
+}
+
+function downloadTemplate() {
+  showToast('템플릿은 로디가 별도로 드린 파일을 사용해주세요!');
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+    return obj;
+  });
+}
+
+function previewCSV(e, previewId) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const rows = parseCSV(ev.target.result);
+    const preview = document.getElementById(previewId);
+    if (rows.length === 0) { preview.innerHTML = '<p style="color:var(--danger);font-size:13px">데이터가 없어요</p>'; return; }
+    const keys = Object.keys(rows[0]);
+    preview.innerHTML = `<p style="font-size:12px;color:var(--text-muted);margin-bottom:6px">${rows.length}개 행 미리보기:</p>
+      <div style="overflow-x:auto"><table style="font-size:12px">
+        <thead><tr>${keys.map(k=>`<th style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text-muted)">${k}</th>`).join('')}</tr></thead>
+        <tbody>${rows.slice(0,3).map(r=>`<tr>${keys.map(k=>`<td style="padding:5px 10px;border-bottom:1px solid var(--border)">${r[k]||'-'}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table></div>`;
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+async function uploadItems() {
+  const file = document.getElementById('items-file').files[0];
+  if (!file) { showToast('파일을 선택해주세요'); return; }
+  const text = await file.text();
+  const rows = parseCSV(text);
+  if (rows.length === 0) { showToast('데이터가 없어요'); return; }
+  let success = 0, fail = 0;
+  for (const row of rows) {
+    const name = row['품목명*'] || row['품목명'];
+    const vendor = row['업체명*'] || row['업체명'];
+    const unit = row['단위*'] || row['단위'] || '개';
+    const stock = parseInt(row['현재재고']) || 0;
+    const min_stock = parseInt(row['최소재고(발주기준)'] || row['최소재고']) || 0;
+    if (!name || !vendor) { fail++; continue; }
+    try {
+      await api('items', 'POST', { name, vendor, unit, stock, min_stock });
+      success++;
+    } catch { fail++; }
+  }
+  showToast(`✅ ${success}개 등록 완료${fail>0?' / ❌ '+fail+'개 실패':''}`);
+}
+
+async function uploadOrders() {
+  const file = document.getElementById('orders-file').files[0];
+  if (!file) { showToast('파일을 선택해주세요'); return; }
+  const text = await file.text();
+  const rows = parseCSV(text);
+  if (rows.length === 0) { showToast('데이터가 없어요'); return; }
+  const items = await api('items?select=*');
+  let success = 0, fail = 0;
+  for (const row of rows) {
+    // 기존 Power BI 양식 지원: 입고일, 대분류, 소분류, 적요, 수량, 금액합, 거래처, 부서명
+    const item_name = row['적요'] || row['품목명*'] || row['품목명'] || '';
+    const vendor = row['거래처'] || row['업체명*'] || row['업체명'] || '';
+    const category = row['대분류'] || row['category'] || '소모품';
+    const sub_category = row['소분류'] || row['sub_category'] || '기타';
+    const qty = parseInt(row['수량'] || row['발주수량*'] || row['발주수량']) || 0;
+    const amount = parseFloat(row['금액합'] || row['금액'] || row['amount']) || 0;
+    const department = row['부서명'] || row['department'] || '';
+    const order_date = row['입고일'] || row['발주일자'] || today();
+    const status = row['상태'] || '입고완료';
+    const note = row['비고'] || '';
+    const unit = row['단위'] || '개';
+    if (!item_name || !vendor) { fail++; continue; }
+    const matched = items.find(i => i.name === item_name);
+    try {
+      await api('orders', 'POST', {
+        item_id: matched?.id || null,
+        item_name, vendor, unit, qty, order_date,
+        note, status, created_by: '일괄업로드',
+        category, sub_category, department, amount
+      });
+      success++;
+    } catch { fail++; }
+  }
+  showToast(`✅ ${success}개 등록 완료${fail>0?' / ❌ '+fail+'개 실패':''}`);
 }
 
 async function toggleRole(id, currentRoleVal) {
