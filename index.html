@@ -717,7 +717,6 @@ async function uploadOrders() {
   const text = window._ordersCSV;
   if (!text) { showToast('파일을 먼저 선택해주세요'); return; }
   const rows = parseCSV(text);
-  const rows = parseCSV(text);
   if (rows.length === 0) { showToast('데이터가 없어요'); return; }
   const items = await api('items?select=*');
   let success = 0, fail = 0;
