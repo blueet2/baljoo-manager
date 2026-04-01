@@ -655,19 +655,18 @@ function parseCSV(text) {
 function previewCSV(e, previewId) {
   const file = e.target.files[0];
   if (!file) return;
-  const tryRead = (encoding) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = ev => resolve(ev.target.result);
-      reader.readAsText(file, encoding);
-    });
-  };
+  const tryRead = (encoding) => new Promise(res => {
+    const r = new FileReader();
+    r.onload = ev => res(ev.target.result);
+    r.readAsText(file, encoding);
+  });
   (async () => {
     let text = await tryRead('UTF-8');
-    // 한글 깨짐 감지 → EUC-KR 재시도
     if (text.includes('â€') || text.includes('ï¿½') || /[\uFFFD]/.test(text)) {
       text = await tryRead('EUC-KR');
     }
+    if (previewId === 'items-preview') window._itemsCSV = text;
+    if (previewId === 'orders-preview') window._ordersCSV = text;
     const rows = parseCSV(text);
     const preview = document.getElementById(previewId);
     if (rows.length === 0) { preview.innerHTML = '<p style="color:var(--danger);font-size:13px">데이터가 없어요</p>'; return; }
@@ -677,15 +676,12 @@ function previewCSV(e, previewId) {
         <thead><tr>${keys.map(k=>`<th style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text-muted)">${k}</th>`).join('')}</tr></thead>
         <tbody>${rows.slice(0,3).map(r=>`<tr>${keys.map(k=>`<td style="padding:5px 10px;border-bottom:1px solid var(--border)">${r[k]||'-'}</td>`).join('')}</tr>`).join('')}</tbody>
       </table></div>`;
-    preview._text = text;
   })();
 }
 
 async function uploadItems() {
-  const file = document.getElementById('items-file').files[0];
-  if (!file) { showToast('파일을 선택해주세요'); return; }
-  const preview = document.getElementById('items-preview');
-  const text = preview._text || await readFileWithEncoding(file);
+  const text = window._itemsCSV;
+  if (!text) { showToast('파일을 먼저 선택해주세요'); return; }
   const rows = parseCSV(text);
   if (rows.length === 0) { showToast('데이터가 없어요'); return; }
   let success = 0, fail = 0;
@@ -718,10 +714,9 @@ async function readFileWithEncoding(file) {
 }
 
 async function uploadOrders() {
-  const file = document.getElementById('orders-file').files[0];
-  if (!file) { showToast('파일을 선택해주세요'); return; }
-  const preview = document.getElementById('orders-preview');
-  const text = preview._text || await readFileWithEncoding(file);
+  const text = window._ordersCSV;
+  if (!text) { showToast('파일을 먼저 선택해주세요'); return; }
+  const rows = parseCSV(text);
   const rows = parseCSV(text);
   if (rows.length === 0) { showToast('데이터가 없어요'); return; }
   const items = await api('items?select=*');
