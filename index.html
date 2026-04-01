@@ -24,67 +24,38 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  #login-screen {
-    min-height: 100vh; display: flex; align-items: center;
-    justify-content: center; background: var(--bg);
-  }
-  .login-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 380px;
-  }
+  #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; }
   .login-logo { font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 0.5rem; }
   .login-logo span { color: var(--accent); }
   .login-sub { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 2rem; }
   .login-tab { display: flex; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .login-tab button {
-    flex: 1; padding: 8px; border: none; background: none;
-    font-size: 13px; font-family: inherit; cursor: pointer; color: var(--text-muted);
-  }
+  .login-tab button { flex: 1; padding: 8px; border: none; background: none; font-size: 13px; font-family: inherit; cursor: pointer; color: var(--text-muted); }
   .login-tab button.active { background: var(--accent); color: #fff; font-weight: 500; }
   .login-form { display: flex; flex-direction: column; gap: 12px; }
-  .login-form input {
-    padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
-    font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text);
-  }
+  .login-form input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); }
   .login-form input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
-  .login-btn {
-    padding: 11px; background: var(--accent); color: #fff; border: none;
-    border-radius: 8px; font-size: 14px; font-family: inherit;
-    font-weight: 500; cursor: pointer; margin-top: 4px;
-  }
+  .login-btn { padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-family: inherit; font-weight: 500; cursor: pointer; margin-top: 4px; }
   .login-btn:hover { background: #1d4ed8; }
-  .login-msg { font-size: 12px; text-align: center; min-height: 18px; color: var(--danger); }
+  .login-msg { font-size: 12px; text-align: center; min-height: 18px; }
 
   #app-screen { display: none; }
 
-  header {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 0 2rem; display: flex; align-items: center;
-    justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100;
-  }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
   .logo { font-size: 15px; font-weight: 600; }
   .logo span { color: var(--accent); }
-  .header-right { display: flex; align-items: center; gap: 12px; }
-  .user-badge {
-    font-size: 12px; background: var(--accent-light); color: var(--accent);
-    padding: 4px 10px; border-radius: 20px; font-weight: 500;
-  }
-  .btn-logout {
-    padding: 6px 12px; font-size: 12px; color: var(--text-muted);
-    border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer;
-  }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .user-badge { font-size: 12px; background: var(--accent-light); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .admin-badge { font-size: 12px; background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+  .btn-logout { padding: 6px 12px; font-size: 12px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; }
   .btn-logout:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
 
   nav { display: flex; gap: 2px; }
-  nav button {
-    padding: 6px 14px; border: none; background: none; font-size: 13px;
-    font-family: inherit; color: var(--text-muted); cursor: pointer;
-    border-radius: 6px; transition: all 0.15s;
-  }
+  nav button { padding: 6px 14px; border: none; background: none; font-size: 13px; font-family: inherit; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.15s; }
   nav button:hover { background: var(--bg); color: var(--text); }
   nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
 
-  main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
   .section { display: none; }
   .section.active { display: block; }
   .page-title { font-size: 18px; font-weight: 600; margin-bottom: 1.5rem; }
@@ -104,29 +75,19 @@
   .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
   .form-group { display: flex; flex-direction: column; gap: 5px; }
   .form-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-  .form-group input, .form-group select {
-    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
-    font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text);
-  }
+  .form-group input, .form-group select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); }
   .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); background: var(--surface); }
 
   .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; }
-  .btn {
-    padding: 8px 18px; border-radius: 8px; font-size: 13px; font-family: inherit;
-    font-weight: 500; cursor: pointer; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text); transition: all 0.15s;
-  }
+  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-family: inherit; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: all 0.15s; }
   .btn:hover { background: var(--bg); }
   .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn-primary:hover { background: #1d4ed8; }
   .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .btn-danger { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th {
-    text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600;
-    color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--border);
-  }
+  thead th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
   tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: var(--bg); }
@@ -135,31 +96,24 @@
   .badge-ok { background: var(--success-light); color: var(--success); }
   .badge-danger { background: var(--danger-light); color: var(--danger); }
   .badge-info { background: var(--accent-light); color: var(--accent); }
+  .badge-admin { background: #fef3c7; color: #92400e; }
+  .badge-user { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
 
   .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
 
-  .rec-item {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 1rem 1.25rem; margin-bottom: 10px;
-    display: flex; align-items: center; justify-content: space-between;
-  }
+  .rec-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
   .rec-item.urgent { border-left: 3px solid var(--danger); }
   .rec-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
   .rec-detail { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-  .toast {
-    position: fixed; bottom: 2rem; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #1a1a1a; color: #fff; padding: 10px 20px;
-    border-radius: 8px; font-size: 13px; opacity: 0;
-    transition: all 0.3s; z-index: 999; pointer-events: none;
-  }
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .pending-banner { background: var(--warn-light); border: 1px solid #fde68a; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 14px; color: #92400e; text-align: center; }
 </style>
 </head>
 <body>
 
-<!-- 로그인 화면 -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">📦 <span>발주</span>관리</div>
@@ -178,156 +132,46 @@
   </div>
 </div>
 
-<!-- 앱 화면 -->
 <div id="app-screen">
   <header>
     <div class="logo">📦 <span>발주</span>관리</div>
-    <nav>
-      <button class="active" onclick="switchTab('dashboard', this)">대시보드</button>
-      <button onclick="switchTab('order', this)">발주 등록</button>
-      <button onclick="switchTab('receive', this)">입고 등록</button>
-      <button onclick="switchTab('history', this)">발주 이력</button>
-      <button onclick="switchTab('items', this)">품목/업체</button>
-      <button onclick="switchTab('recommend', this)">발주 필요</button>
-    </nav>
+    <nav id="main-nav"></nav>
     <div class="header-right">
+      <span id="role-badge"></span>
       <span class="user-badge" id="user-display"></span>
       <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
     </div>
   </header>
-
-  <main>
-    <div id="dashboard" class="section active">
-      <div class="page-title">대시보드</div>
-      <div class="cards">
-        <div class="metric"><div class="metric-label">전체 품목</div><div class="metric-value" id="m-total">-</div></div>
-        <div class="metric"><div class="metric-label">재고 부족</div><div class="metric-value danger" id="m-low">-</div></div>
-        <div class="metric"><div class="metric-label">이번달 발주</div><div class="metric-value" id="m-month">-</div></div>
-        <div class="metric"><div class="metric-label">미입고 건수</div><div class="metric-value warn" id="m-pending">-</div></div>
-      </div>
-      <div class="card">
-        <div class="card-title">재고 현황</div>
-        <table>
-          <thead><tr><th>품목명</th><th>업체</th><th>현재 재고</th><th>최소 기준</th><th>상태</th></tr></thead>
-          <tbody id="stock-table"><tr><td colspan="5" class="empty">로딩 중...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="order" class="section">
-      <div class="page-title">발주 요청 등록</div>
-      <div class="card">
-        <div class="form-row">
-          <div class="form-group"><label>품목 선택</label>
-            <select id="o-item" onchange="fillOrderVendor()"><option value="">선택하세요</option></select>
-          </div>
-          <div class="form-group"><label>발주 업체</label><input id="o-vendor" readonly placeholder="품목 선택 시 자동입력"></div>
-        </div>
-        <div class="form-row three">
-          <div class="form-group"><label>발주 수량</label><input id="o-qty" type="number" min="1" placeholder="수량"></div>
-          <div class="form-group"><label>단위</label><input id="o-unit" readonly placeholder="자동입력"></div>
-          <div class="form-group"><label>발주 예정일</label><input id="o-date" type="date"></div>
-        </div>
-        <div class="form-group"><label>비고</label><input id="o-note" placeholder="메모 (선택)"></div>
-        <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
-      </div>
-    </div>
-
-    <div id="receive" class="section">
-      <div class="page-title">입고 내역 등록</div>
-      <div class="card">
-        <div class="form-row">
-          <div class="form-group"><label>발주 건 선택</label>
-            <select id="r-order"><option value="">선택하세요</option></select>
-          </div>
-          <div class="form-group"><label>입고일</label><input id="r-date" type="date"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>입고 수량</label><input id="r-qty" type="number" min="1" placeholder="수량"></div>
-          <div class="form-group"><label>비고</label><input id="r-note" placeholder="메모 (선택)"></div>
-        </div>
-        <div class="btn-row"><button class="btn btn-primary" onclick="addReceive()">입고 등록</button></div>
-      </div>
-    </div>
-
-    <div id="history" class="section">
-      <div class="page-title">발주 이력</div>
-      <div class="card">
-        <table>
-          <thead><tr><th>발주일</th><th>품목</th><th>업체</th><th>수량</th><th>등록자</th><th>상태</th></tr></thead>
-          <tbody id="history-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="items" class="section">
-      <div class="page-title">품목 / 업체 관리</div>
-      <div class="card">
-        <div class="card-title">새 품목 추가</div>
-        <div class="form-row three">
-          <div class="form-group"><label>품목명</label><input id="i-name" placeholder="예: A4용지"></div>
-          <div class="form-group"><label>업체명</label><input id="i-vendor" placeholder="예: 문구나라"></div>
-          <div class="form-group"><label>단위</label><input id="i-unit" placeholder="예: 박스, 개, 롤"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>현재 재고</label><input id="i-stock" type="number" min="0" placeholder="0"></div>
-          <div class="form-group"><label>최소 재고 (발주 기준)</label><input id="i-min" type="number" min="0" placeholder="0"></div>
-        </div>
-        <div class="btn-row"><button class="btn btn-primary" onclick="addItem()">품목 추가</button></div>
-      </div>
-      <div class="card">
-        <div class="card-title">등록된 품목</div>
-        <table>
-          <thead><tr><th>품목명</th><th>업체</th><th>단위</th><th>현재 재고</th><th>최소 재고</th><th>삭제</th></tr></thead>
-          <tbody id="items-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="recommend" class="section">
-      <div class="page-title">발주 필요</div>
-      <div id="rec-list"></div>
-    </div>
-  </main>
+  <main id="main-content"></main>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
 // =====================================================
-// 🔧 여기를 본인 Supabase 정보로 바꿔주세요!
 const SUPABASE_URL = 'https://woohpuhljpamgappqcdu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvb2hwdWhsanBhbWdhcHBxY2R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MzE0MjYsImV4cCI6MjA5MDUwNzQyNn0.yATuXGWne2w8WlsPRPwlL2_w-1C4TSOqyqRrt_U6t1A';
 // =====================================================
 
 let currentUserName = '';
+let currentRole = 'user';
+let currentUserId = '';
 let authToken = SUPABASE_KEY;
 let loginMode = 'login';
 
 function getHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'apikey': SUPABASE_KEY,
-    'Authorization': `Bearer ${authToken}`,
-    'Prefer': 'return=representation'
-  };
+  return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' };
 }
 
 async function api(path, method='GET', body=null) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    method, headers: getHeaders(), body: body ? JSON.stringify(body) : null
-  });
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method, headers: getHeaders(), body: body ? JSON.stringify(body) : null });
   if (!res.ok) { const e = await res.text(); throw new Error(e); }
   const t = await res.text();
   return t ? JSON.parse(t) : [];
 }
 
 async function authApi(path, body) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
-    body: JSON.stringify(body)
-  });
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY }, body: JSON.stringify(body) });
   return await res.json();
 }
 
@@ -353,61 +197,104 @@ async function handleAuth() {
   const password = document.getElementById('auth-password').value;
   const name = document.getElementById('auth-name').value.trim();
   const msgEl = document.getElementById('auth-msg');
-  msgEl.style.color = 'var(--danger)';
-  msgEl.textContent = '';
+  msgEl.style.color = 'var(--danger)'; msgEl.textContent = '';
   if (!email || !password) { msgEl.textContent = '이메일과 비밀번호를 입력해주세요'; return; }
   if (loginMode === 'signup' && !name) { msgEl.textContent = '이름을 입력해주세요'; return; }
-
   document.getElementById('auth-btn').textContent = '처리 중...';
 
   if (loginMode === 'signup') {
     const res = await authApi('signup', { email, password, data: { name } });
     if (res.error) { msgEl.textContent = '가입 실패: ' + res.error.message; }
-    else { msgEl.style.color = 'var(--success)'; msgEl.textContent = '가입 완료! 이메일 인증 후 로그인해주세요.'; }
+    else { msgEl.style.color = 'var(--success)'; msgEl.textContent = '가입 완료! 로그인해주세요.'; switchLoginTab('login'); }
     document.getElementById('auth-btn').textContent = '회원가입';
   } else {
     const res = await authApi('token?grant_type=password', { email, password });
-    if (res.error) {
-      msgEl.textContent = '이메일 또는 비밀번호가 틀렸어요';
-      document.getElementById('auth-btn').textContent = '로그인';
-      return;
-    }
+    if (res.error) { msgEl.textContent = '이메일 또는 비밀번호가 틀렸어요'; document.getElementById('auth-btn').textContent = '로그인'; return; }
     authToken = res.access_token;
-    currentUserName = res.user?.user_metadata?.name || email.split('@')[0];
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'block';
-    document.getElementById('user-display').textContent = currentUserName;
+    currentUserId = res.user.id;
+    currentUserName = res.user.user_metadata?.name || email.split('@')[0];
+    // 권한 확인
+    const profiles = await api(`profiles?id=eq.${currentUserId}&select=role,name`);
+    currentRole = profiles.length > 0 ? profiles[0].role : 'user';
+    if (profiles.length > 0 && profiles[0].name) currentUserName = profiles[0].name;
     document.getElementById('auth-btn').textContent = '로그인';
-    loadDashboard();
+    showApp();
   }
 }
 
 async function handleLogout() {
-  await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` }
-  });
-  authToken = SUPABASE_KEY;
-  currentUserName = '';
+  await fetch(`${SUPABASE_URL}/auth/v1/logout`, { method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` } });
+  authToken = SUPABASE_KEY; currentUserName = ''; currentRole = 'user'; currentUserId = '';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('auth-password').value = '';
 }
 
-function switchTab(id, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  if (id === 'dashboard') loadDashboard();
-  if (id === 'order') loadOrderForm();
-  if (id === 'receive') loadReceiveForm();
-  if (id === 'history') loadHistory();
-  if (id === 'items') loadItems();
-  if (id === 'recommend') loadRecommend();
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('user-display').textContent = currentUserName;
+  const rb = document.getElementById('role-badge');
+  if (currentRole === 'admin') { rb.className = 'admin-badge'; rb.textContent = '관리자'; }
+  else { rb.className = ''; rb.textContent = ''; }
+  renderNav();
+  if (currentRole === 'admin') renderAdminDashboard();
+  else renderUserHome();
 }
 
-async function loadDashboard() {
+function renderNav() {
+  const nav = document.getElementById('main-nav');
+  if (currentRole === 'admin') {
+    nav.innerHTML = `
+      <button class="active" onclick="switchTab('dashboard', this)">대시보드</button>
+      <button onclick="switchTab('order', this)">발주 등록</button>
+      <button onclick="switchTab('receive', this)">입고 등록</button>
+      <button onclick="switchTab('history', this)">발주 이력</button>
+      <button onclick="switchTab('items', this)">품목/업체</button>
+      <button onclick="switchTab('recommend', this)">발주 필요</button>
+      <button onclick="switchTab('users', this)">사용자 관리</button>
+    `;
+  } else {
+    nav.innerHTML = `
+      <button class="active" onclick="switchTab('order', this)">발주 등록</button>
+      <button onclick="switchTab('receive', this)">입고 등록</button>
+      <button onclick="switchTab('history', this)">발주 이력</button>
+      <button onclick="switchTab('recommend', this)">발주 필요</button>
+    `;
+  }
+}
+
+function renderMain(html) {
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (id === 'dashboard') renderAdminDashboard();
+  else if (id === 'order') renderOrder();
+  else if (id === 'receive') renderReceive();
+  else if (id === 'history') renderHistory();
+  else if (id === 'items') renderItems();
+  else if (id === 'recommend') renderRecommend();
+  else if (id === 'users') renderUsers();
+}
+
+function renderUserHome() { renderOrder(); }
+
+// ── 대시보드 (관리자) ──
+async function renderAdminDashboard() {
+  renderMain(`<div class="page-title">대시보드</div>
+    <div class="cards">
+      <div class="metric"><div class="metric-label">전체 품목</div><div class="metric-value" id="m-total">-</div></div>
+      <div class="metric"><div class="metric-label">재고 부족</div><div class="metric-value danger" id="m-low">-</div></div>
+      <div class="metric"><div class="metric-label">이번달 발주</div><div class="metric-value" id="m-month">-</div></div>
+      <div class="metric"><div class="metric-label">미입고 건수</div><div class="metric-value warn" id="m-pending">-</div></div>
+    </div>
+    <div class="card"><div class="card-title">재고 현황</div>
+      <table><thead><tr><th>품목명</th><th>업체</th><th>현재 재고</th><th>최소 기준</th><th>상태</th></tr></thead>
+      <tbody id="stock-table"><tr><td colspan="5" class="empty">로딩 중...</td></tr></tbody></table>
+    </div>`);
   const [items, orders] = await Promise.all([api('items?select=*'), api('orders?select=*')]);
   const low = items.filter(i => i.stock <= i.min_stock).length;
   const now = new Date();
@@ -417,42 +304,29 @@ async function loadDashboard() {
   document.getElementById('m-low').textContent = low;
   document.getElementById('m-month').textContent = monthOrders;
   document.getElementById('m-pending').textContent = pending;
-  const tb = document.getElementById('stock-table');
-  tb.innerHTML = items.length === 0
-    ? '<tr><td colspan="5" class="empty">품목/업체 탭에서 품목을 먼저 등록해주세요</td></tr>'
+  document.getElementById('stock-table').innerHTML = items.length === 0
+    ? '<tr><td colspan="5" class="empty">품목을 먼저 등록해주세요</td></tr>'
     : items.map(i => { const ok = i.stock > i.min_stock; return `<tr><td>${i.name}</td><td>${i.vendor}</td><td>${i.stock}${i.unit}</td><td>${i.min_stock}${i.unit}</td><td><span class="badge ${ok?'badge-ok':'badge-danger'}">${ok?'정상':'부족'}</span></td></tr>`; }).join('');
 }
 
-async function loadItems() {
-  const items = await api('items?select=*&order=created_at.desc');
-  document.getElementById('items-table').innerHTML = items.length === 0
-    ? '<tr><td colspan="6" class="empty">등록된 품목이 없어요</td></tr>'
-    : items.map(i => `<tr><td>${i.name}</td><td>${i.vendor}</td><td>${i.unit}</td><td>${i.stock}</td><td>${i.min_stock}</td><td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td></tr>`).join('');
-}
-
-async function addItem() {
-  const name = document.getElementById('i-name').value.trim();
-  const vendor = document.getElementById('i-vendor').value.trim();
-  const unit = document.getElementById('i-unit').value.trim() || '개';
-  const stock = parseInt(document.getElementById('i-stock').value) || 0;
-  const min_stock = parseInt(document.getElementById('i-min').value) || 0;
-  if (!name || !vendor) { showToast('품목명과 업체명을 입력해주세요'); return; }
-  await api('items', 'POST', { name, vendor, unit, stock, min_stock });
-  ['i-name','i-vendor','i-unit','i-stock','i-min'].forEach(id => document.getElementById(id).value = '');
-  showToast('품목이 추가되었어요!'); loadItems();
-}
-
-async function deleteItem(id) {
-  if (!confirm('정말 삭제할까요?')) return;
-  await api(`items?id=eq.${id}`, 'DELETE');
-  showToast('삭제되었어요'); loadItems();
-}
-
-async function loadOrderForm() {
+// ── 발주 등록 ──
+async function renderOrder() {
   const items = await api('items?select=*');
-  const sel = document.getElementById('o-item');
-  sel.innerHTML = '<option value="">선택하세요</option>' + items.map(i => `<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}">${i.name}</option>`).join('');
-  document.getElementById('o-date').value = today();
+  const opts = items.map(i => `<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}">${i.name}</option>`).join('');
+  renderMain(`<div class="page-title">발주 요청 등록</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>품목 선택</label><select id="o-item" onchange="fillOrderVendor()"><option value="">선택하세요</option>${opts}</select></div>
+        <div class="form-group"><label>발주 업체</label><input id="o-vendor" readonly placeholder="품목 선택 시 자동입력"></div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group"><label>발주 수량</label><input id="o-qty" type="number" min="1" placeholder="수량"></div>
+        <div class="form-group"><label>단위</label><input id="o-unit" readonly placeholder="자동입력"></div>
+        <div class="form-group"><label>발주 예정일</label><input id="o-date" type="date" value="${today()}"></div>
+      </div>
+      <div class="form-group"><label>비고</label><input id="o-note" placeholder="메모 (선택)"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
+    </div>`);
   window._orderItems = items;
 }
 
@@ -471,17 +345,28 @@ async function addOrder() {
   if (!item_id || !qty || qty < 1) { showToast('품목과 수량을 입력해주세요'); return; }
   const item = (window._orderItems || []).find(i => i.id === item_id);
   await api('orders', 'POST', { item_id, item_name: item.name, vendor: item.vendor, unit: item.unit, qty, order_date, note, status: '발주중', created_by: currentUserName });
+  showToast('발주가 등록되었어요!');
   document.getElementById('o-qty').value = '';
   document.getElementById('o-note').value = '';
-  showToast('발주가 등록되었어요!');
 }
 
-async function loadReceiveForm() {
+// ── 입고 등록 ──
+async function renderReceive() {
   const orders = await api("orders?select=*&status=eq.발주중&order=created_at.desc");
-  const sel = document.getElementById('r-order');
-  sel.innerHTML = '<option value="">선택하세요</option>' + orders.map(o => `<option value="${o.id}" data-item-id="${o.item_id}" data-unit="${o.unit}">[${o.order_date}] ${o.item_name} ${o.qty}${o.unit}</option>`).join('');
-  document.getElementById('r-date').value = today();
+  const opts = orders.map(o => `<option value="${o.id}" data-item-id="${o.item_id}" data-unit="${o.unit}">[${o.order_date}] ${o.item_name} ${o.qty}${o.unit}</option>`).join('');
   window._pendingOrders = orders;
+  renderMain(`<div class="page-title">입고 내역 등록</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>발주 건 선택</label><select id="r-order"><option value="">선택하세요</option>${opts}</select></div>
+        <div class="form-group"><label>입고일</label><input id="r-date" type="date" value="${today()}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>입고 수량</label><input id="r-qty" type="number" min="1" placeholder="수량"></div>
+        <div class="form-group"><label>비고</label><input id="r-note" placeholder="메모 (선택)"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addReceive()">입고 등록</button></div>
+    </div>`);
 }
 
 async function addReceive() {
@@ -495,19 +380,73 @@ async function addReceive() {
   await api(`orders?id=eq.${order_id}`, 'PATCH', { status: '입고완료' });
   const cur = await api(`items?id=eq.${order.item_id}&select=stock`);
   if (cur.length > 0) await api(`items?id=eq.${order.item_id}`, 'PATCH', { stock: cur[0].stock + qty });
-  document.getElementById('r-qty').value = '';
-  document.getElementById('r-note').value = '';
-  showToast('입고가 등록되었어요!'); loadReceiveForm();
+  showToast('입고가 등록되었어요!');
+  renderReceive();
 }
 
-async function loadHistory() {
+// ── 발주 이력 ──
+async function renderHistory() {
+  renderMain(`<div class="page-title">발주 이력</div>
+    <div class="card">
+      <table><thead><tr><th>발주일</th><th>품목</th><th>업체</th><th>수량</th><th>등록자</th><th>상태</th></tr></thead>
+      <tbody id="history-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
+    </div>`);
   const orders = await api('orders?select=*&order=created_at.desc');
   document.getElementById('history-table').innerHTML = orders.length === 0
     ? '<tr><td colspan="6" class="empty">발주 이력이 없어요</td></tr>'
     : orders.map(o => `<tr><td>${o.order_date}</td><td>${o.item_name}</td><td>${o.vendor}</td><td>${o.qty}${o.unit}</td><td style="color:var(--text-muted)">${o.created_by||'-'}</td><td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-info'}">${o.status}</span></td></tr>`).join('');
 }
 
-async function loadRecommend() {
+// ── 품목/업체 관리 (관리자) ──
+async function renderItems() {
+  renderMain(`<div class="page-title">품목 / 업체 관리</div>
+    <div class="card"><div class="card-title">새 품목 추가</div>
+      <div class="form-row three">
+        <div class="form-group"><label>품목명</label><input id="i-name" placeholder="예: A4용지"></div>
+        <div class="form-group"><label>업체명</label><input id="i-vendor" placeholder="예: 문구나라"></div>
+        <div class="form-group"><label>단위</label><input id="i-unit" placeholder="예: 박스, 개, 롤"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>현재 재고</label><input id="i-stock" type="number" min="0" placeholder="0"></div>
+        <div class="form-group"><label>최소 재고 (발주 기준)</label><input id="i-min" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addItem()">품목 추가</button></div>
+    </div>
+    <div class="card"><div class="card-title">등록된 품목</div>
+      <table><thead><tr><th>품목명</th><th>업체</th><th>단위</th><th>현재 재고</th><th>최소 재고</th><th>삭제</th></tr></thead>
+      <tbody id="items-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
+    </div>`);
+  loadItemsTable();
+}
+
+async function loadItemsTable() {
+  const items = await api('items?select=*&order=created_at.desc');
+  document.getElementById('items-table').innerHTML = items.length === 0
+    ? '<tr><td colspan="6" class="empty">등록된 품목이 없어요</td></tr>'
+    : items.map(i => `<tr><td>${i.name}</td><td>${i.vendor}</td><td>${i.unit}</td><td>${i.stock}</td><td>${i.min_stock}</td><td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td></tr>`).join('');
+}
+
+async function addItem() {
+  const name = document.getElementById('i-name').value.trim();
+  const vendor = document.getElementById('i-vendor').value.trim();
+  const unit = document.getElementById('i-unit').value.trim() || '개';
+  const stock = parseInt(document.getElementById('i-stock').value) || 0;
+  const min_stock = parseInt(document.getElementById('i-min').value) || 0;
+  if (!name || !vendor) { showToast('품목명과 업체명을 입력해주세요'); return; }
+  await api('items', 'POST', { name, vendor, unit, stock, min_stock });
+  ['i-name','i-vendor','i-unit','i-stock','i-min'].forEach(id => document.getElementById(id).value = '');
+  showToast('품목이 추가되었어요!'); loadItemsTable();
+}
+
+async function deleteItem(id) {
+  if (!confirm('정말 삭제할까요?')) return;
+  await api(`items?id=eq.${id}`, 'DELETE');
+  showToast('삭제되었어요'); loadItemsTable();
+}
+
+// ── 발주 필요 ──
+async function renderRecommend() {
+  renderMain(`<div class="page-title">발주 필요</div><div id="rec-list"><p style="color:#888;font-size:14px">로딩 중...</p></div>`);
   const [items, orders] = await Promise.all([api('items?select=*'), api('orders?select=*&status=eq.입고완료')]);
   const list = document.getElementById('rec-list');
   if (items.length === 0) { list.innerHTML = '<p style="color:#888;font-size:14px">품목을 먼저 등록하면 발주 필요 목록이 표시돼요.</p>'; return; }
@@ -517,10 +456,8 @@ async function loadRecommend() {
     let cycleText = '발주 이력이 쌓이면 주기를 알려드려요';
     if (itemOrders.length >= 2) {
       const dates = itemOrders.map(o => new Date(o.order_date)).sort((a,b) => a-b);
-      const gaps = [];
-      for (let i = 1; i < dates.length; i++) gaps.push((dates[i]-dates[i-1])/(1000*60*60*24));
-      const avg = Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
-      cycleText = `평균 발주 주기: 약 ${avg}일`;
+      const gaps = []; for (let i = 1; i < dates.length; i++) gaps.push((dates[i]-dates[i-1])/(1000*60*60*24));
+      cycleText = `평균 발주 주기: 약 ${Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length)}일`;
     }
     return `<div class="rec-item ${urgent?'urgent':''}">
       <div>
@@ -530,10 +467,52 @@ async function loadRecommend() {
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
         <span class="badge ${urgent?'badge-danger':'badge-ok'}">${urgent?'발주 필요':'재고 양호'}</span>
-        ${urgent?`<button class="btn btn-sm" onclick="document.querySelector('nav button:nth-child(6)').previousElementSibling.click()">발주하기</button>`:''}
+        ${urgent?`<button class="btn btn-sm" onclick="goToOrder()">발주하기</button>`:''}
       </div>
     </div>`;
   }).join('');
+}
+
+function goToOrder() {
+  const btns = document.querySelectorAll('nav button');
+  btns.forEach(b => { if (b.textContent === '발주 등록') b.click(); });
+}
+
+// ── 사용자 관리 (관리자) ──
+async function renderUsers() {
+  renderMain(`<div class="page-title">사용자 관리</div>
+    <div class="card">
+      <table><thead><tr><th>이름</th><th>권한</th><th>가입일</th><th>권한 변경</th></tr></thead>
+      <tbody id="users-table"><tr><td colspan="4" class="empty">로딩 중...</td></tr></tbody></table>
+    </div>`);
+  loadUsersTable();
+}
+
+async function loadUsersTable() {
+  const profiles = await api('profiles?select=*&order=created_at.asc');
+  document.getElementById('users-table').innerHTML = profiles.length === 0
+    ? '<tr><td colspan="4" class="empty">사용자가 없어요</td></tr>'
+    : profiles.map(p => {
+        const isAdmin = p.role === 'admin';
+        const isSelf = p.id === currentUserId;
+        return `<tr>
+          <td>${p.name || '(이름 없음)'}</td>
+          <td><span class="badge ${isAdmin?'badge-admin':'badge-user'}">${isAdmin?'관리자':'사용자'}</span></td>
+          <td style="color:var(--text-muted)">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
+          <td>${isSelf ? '<span style="color:var(--text-muted);font-size:12px">본인</span>' :
+            `<button class="btn btn-sm ${isAdmin?'btn-danger':''}" onclick="toggleRole('${p.id}','${p.role}')">${isAdmin?'사용자로 변경':'관리자로 변경'}</button>`
+          }</td>
+        </tr>`;
+      }).join('');
+}
+
+async function toggleRole(id, currentRoleVal) {
+  const newRole = currentRoleVal === 'admin' ? 'user' : 'admin';
+  const label = newRole === 'admin' ? '관리자' : '일반 사용자';
+  if (!confirm(`${label}로 변경할까요?`)) return;
+  await api(`profiles?id=eq.${id}`, 'PATCH', { role: newRole });
+  showToast('권한이 변경되었어요!');
+  loadUsersTable();
 }
 </script>
 </body>
