@@ -363,6 +363,10 @@ async function deleteItem(id){
 async function renderOrder(){
   const items=await api('items?select=*&order=name.asc');
   window._orderItems=items;
+  // 최근 2달 기본값 계산
+  const _now=new Date();
+  const twoMonthsAgo=new Date(_now.getFullYear(),_now.getMonth()-1,1).toISOString().split('T')[0].substring(0,7);
+  const thisMonth=_now.toISOString().split('T')[0].substring(0,7);
   renderMain(`<div class="page-title">발주 관리</div>
     <div class="card">
       <div class="form-row">
