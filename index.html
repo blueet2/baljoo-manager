@@ -107,9 +107,6 @@ tbody tr:hover{background:#fafaf8}
       <input id="auth-email" type="email" placeholder="이메일">
       <input id="auth-password" type="password" placeholder="비밀번호" style="display:block">
       <input id="auth-name" type="text" placeholder="이름" style="display:none">
-      <select id="auth-dept" style="display:none;padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text)">
-        <option value="">부서 선택 *</option>${DEPT_OPTS}
-      </select>
       <div class="login-msg" id="auth-msg"></div>
       <button class="login-btn" id="auth-btn" onclick="handleAuth()">로그인</button>
     </div>
@@ -242,12 +239,8 @@ function switchLoginTab(mode){
   document.getElementById('tab-login').classList.toggle('active',mode==='login');
   document.getElementById('tab-signup').classList.toggle('active',mode==='signup');
   document.getElementById('tab-forgot').classList.toggle('active',mode==='forgot');
-  const showPw=mode!=='forgot';
-  const showName=mode==='signup';
-  const showDept=mode==='signup';
-  document.getElementById('auth-password').style.display=showPw?'block':'none';
-  document.getElementById('auth-name').style.display=showName?'block':'none';
-  document.getElementById('auth-dept').style.display=showDept?'block':'none';
+  document.getElementById('auth-password').style.display=mode!=='forgot'?'block':'none';
+  document.getElementById('auth-name').style.display=mode==='signup'?'block':'none';
   if(mode==='login')document.getElementById('auth-btn').textContent='로그인';
   else if(mode==='signup')document.getElementById('auth-btn').textContent='회원가입';
   else document.getElementById('auth-btn').textContent='초기화 이메일 발송';
@@ -258,7 +251,6 @@ async function handleAuth(){
   const email=document.getElementById('auth-email').value.trim();
   const password=loginMode!=='forgot'?document.getElementById('auth-password').value:'';
   const name=document.getElementById('auth-name').value.trim();
-  const dept=document.getElementById('auth-dept').value;
   const msgEl=document.getElementById('auth-msg');
   msgEl.style.color='var(--danger)';msgEl.textContent='';
 
@@ -277,16 +269,15 @@ async function handleAuth(){
 
   if(!email||!password){msgEl.textContent='이메일과 비밀번호를 입력해주세요';return}
   if(loginMode==='signup'&&!name){msgEl.textContent='이름을 입력해주세요';return}
-  if(loginMode==='signup'&&!dept){msgEl.textContent='부서를 선택해주세요';return}
   document.getElementById('auth-btn').textContent='처리 중...';
 
   if(loginMode==='signup'){
-    const res=await authApi('signup',{email,password,data:{name,department:dept}});
+    const res=await authApi('signup',{email,password,data:{name}});
     if(res.error){msgEl.textContent='가입 실패: '+res.error.message}
     else{
-      // profiles 테이블에 부서 저장
+      // profiles 테이블에 email 저장
       if(res.user){
-        try{await api(`profiles?id=eq.${res.user.id}`,'PATCH',{name,department:dept,email});}catch(e){}
+        try{await api(`profiles?id=eq.${res.user.id}`,'PATCH',{name,email});}catch(e){}
       }
       msgEl.style.color='var(--success)';
       msgEl.textContent='가입 완료! 로그인해주세요.';
@@ -851,9 +842,14 @@ async function renderUsers(){
     ?'<tr><td colspan="7" class="empty">사용자가 없어요</td></tr>'
     :profiles.map(p=>{
       const isAdmin=p.role==='admin';const isSelf=p.id===currentUserId;
+      const deptOpts=`<option value="">부서 선택</option>${DEPARTMENTS.map(d=>`<option value="${d}" ${p.department===d?'selected':''}>${d}</option>`).join('')}`;
       return`<tr>
         <td><strong>${p.name||'(이름 없음)'}</strong></td>
-        <td style="color:var(--muted)">${p.department||'-'}</td>
+        <td>
+          <select onchange="changeDept('${p.id}',this.value)" style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);max-width:130px">
+            ${deptOpts}
+          </select>
+        </td>
         <td style="color:var(--muted);font-size:12px">${p.email||'-'}</td>
         <td><span class="badge ${isAdmin?'badge-admin':'badge-user'}">${isAdmin?'관리자':'사용자'}</span></td>
         <td style="color:var(--muted)">${p.created_at?p.created_at.split('T')[0]:'-'}</td>
@@ -886,6 +882,11 @@ async function sendResetEmail(email, name){
   });
   if(res.ok){showToast(`✅ ${email} 로 초기화 이메일을 보냈어요!`)}
   else{showToast('❌ 이메일 발송 실패. 이메일 주소를 확인해주세요.')}
+}
+
+async function changeDept(userId, dept){
+  await api(`profiles?id=eq.${userId}`,'PATCH',{department:dept});
+  showToast(dept?`✅ 부서를 "${dept}"로 변경했어요!`:'부서가 해제되었어요');
 }
 
 // ── 데이터 업로드 ──
