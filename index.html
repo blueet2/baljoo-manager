@@ -592,15 +592,20 @@ async function addReceive(){
 }
 
 async function loadReceiveHistory(){
-  const now=new Date();
   const from=document.getElementById('rl-from')?.value||'';
   const to=document.getElementById('rl-to')?.value||'';
-  const dept=document.getElementById('rl-dept')?.value||'';
   let q='receives?select=*&order=receive_date.desc';
   if(from)q+=`&receive_date=gte.${from}-01`;
   if(to){const d=new Date(parseInt(to.split('-')[0]),parseInt(to.split('-')[1]),0);q+=`&receive_date=lte.${to}-${d.getDate()}`;}
-  if(dept)q+=`&order_id=in.(${(await api(`orders?select=id&department=eq.${encodeURIComponent(dept)}`)).map(o=>o.id).join(',')})`;
-  const receives=await api(q);
+  let receives=[];
+  try{
+    receives=await api(q);
+    console.log('입고이력 조회:', q, '결과:', receives.length+'건');
+  }catch(e){
+    console.error('입고이력 조회 오류:', e);
+    document.getElementById('receive-history-table').innerHTML='<tr><td colspan="6" class="empty">조회 오류: '+e.message+'</td></tr>';
+    return;
+  }
   const tb=document.getElementById('receive-history-table');
   const tot=document.getElementById('receive-history-total');
   if(!tb)return;
