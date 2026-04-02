@@ -289,13 +289,25 @@ async function handleAuth(){
     if(res.error){msgEl.textContent='이메일 또는 비밀번호가 틀렸어요';document.getElementById('auth-btn').textContent='로그인';return}
     authToken=res.access_token;currentUserId=res.user.id;
     currentUserName=res.user.user_metadata?.name||email.split('@')[0];
-    const profiles=await api(`profiles?id=eq.${currentUserId}&select=role,name,department,email`);
-    currentRole=profiles.length>0?profiles[0].role:'user';
-    currentUserDept=profiles.length>0?profiles[0].department||'':'';
-    if(profiles.length>0&&profiles[0].name)currentUserName=profiles[0].name;
-    // email 없으면 저장
-    if(profiles.length>0&&!profiles[0].email){
-      try{await api(`profiles?id=eq.${currentUserId}`,'PATCH',{email});}catch(e){}
+    // 프로필 조회 - 컬럼이 없어도 기본값으로 처리
+    try{
+      const profiles=await api(`profiles?id=eq.${currentUserId}&select=role,name,department,email`);
+      if(profiles.length>0){
+        currentRole=profiles[0].role||'user';
+        currentUserDept=profiles[0].department||'';
+        if(profiles[0].name)currentUserName=profiles[0].name;
+        // email 저장 시도 (컬럼 없으면 무시)
+        if(!profiles[0].email){
+          try{await api(`profiles?id=eq.${currentUserId}`,'PATCH',{email});}catch(e){}
+        }
+      }
+    }catch(e){
+      // profiles 조회 실패해도 로그인은 유지 (컬럼 미존재 등)
+      console.warn('프로필 조회 실패(무시):', e.message);
+      try{
+        const p2=await api(`profiles?id=eq.${currentUserId}&select=role,name`);
+        if(p2.length>0){currentRole=p2[0].role||'user';if(p2[0].name)currentUserName=p2[0].name;}
+      }catch(e2){}
     }
     document.getElementById('auth-btn').textContent='로그인';
     showApp();
