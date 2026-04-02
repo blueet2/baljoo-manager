@@ -706,6 +706,9 @@ async function renderNeed(){
 // ── 사용자 관리 ──
 async function renderUsers(){
   renderMain(`<div class="page-title">사용자 관리</div>
+    <div class="card" style="background:var(--accent-light);border-color:#c7d8f0">
+      <p style="font-size:13px;color:var(--accent)">💡 회원가입한 사용자가 이 목록에 표시돼요. 권한 변경 버튼으로 관리자/사용자를 전환할 수 있어요. 관리자는 항상 최소 1명이 유지돼요.</p>
+    </div>
     <div class="card">
       <table><thead><tr><th>이름</th><th>권한</th><th>가입일</th><th>권한 변경</th></tr></thead>
       <tbody id="users-table"><tr><td colspan="4" class="empty">로딩 중...</td></tr></tbody></table>
@@ -725,6 +728,14 @@ async function renderUsers(){
 
 async function toggleRole(id,role){
   const newRole=role==='admin'?'user':'admin';
+  // 관리자 → 사용자로 변경할 때 최소 1명 보호
+  if(role==='admin'){
+    const admins=await api('profiles?role=eq.admin&select=id');
+    if(admins.length<=1){
+      alert('관리자가 1명뿐이에요! 다른 관리자를 먼저 지정해주세요 😊');
+      return;
+    }
+  }
   if(!confirm(`${newRole==='admin'?'관리자':'사용자'}로 변경할까요?`))return;
   await api(`profiles?id=eq.${id}`,'PATCH',{role:newRole});
   showToast('권한이 변경되었어요!');renderUsers();
