@@ -404,7 +404,7 @@ async function renderOrder(){
       <table><thead><tr><th>발주일</th><th>품목명</th><th>규격</th><th>업체</th><th>부서</th><th>수량</th><th>등록자</th><th>상태</th></tr></thead>
       <tbody id="order-history-table"><tr><td colspan="8" class="empty">로딩 중...</td></tr></tbody></table>
       <div id="order-history-total" style="text-align:right;padding:8px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
-    </div>\`);
+    </div>`);
   document.addEventListener('click', closeDropdown);
   // 최근 2달 기본값
   const now3=new Date();
@@ -548,7 +548,7 @@ async function renderReceive(){
       <table><thead><tr><th>입고일</th><th>품목명</th><th>업체</th><th>수량</th><th>금액</th><th>처리자</th></tr></thead>
       <tbody id="receive-history-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
       <div id="receive-history-total" style="text-align:right;padding:8px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
-    </div>\`);
+    </div>`);
   // 최근 2달 기본값 설정
   const now2=new Date();
   const twoAgo=new Date(now2.getFullYear(),now2.getMonth()-1,1);
