@@ -440,12 +440,17 @@ async function addOrder(){
   const note=document.getElementById('o-note').value.trim();
   const category=document.getElementById('o-category').value;
   const sub_category=document.getElementById('o-subcategory').value;
-  await api('orders','POST',{
-    item_id,item_name:item.name,vendor:item.vendor,unit:item.unit,
-    qty,order_date,note,status:'발주중',created_by:currentUserName,
-    category,sub_category,department:dept,spec,amount:0
-  });
-  showToast('발주가 등록되었어요!');
+  try{
+    await api('orders','POST',{
+      item_id,item_name:item.name,vendor:item.vendor,unit:item.unit,
+      qty,order_date,note,status:'발주중',created_by:currentUserName,
+      category,sub_category,department:dept,spec,amount:0
+    });
+    showToast('발주가 등록되었어요!');
+  }catch(e){
+    alert('발주 등록 실패:\n'+e.message);
+    return;
+  }
   document.getElementById('o-search').value='';
   document.getElementById('o-item-id').value='';
   document.getElementById('o-qty').value='';
