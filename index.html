@@ -3,121 +3,101 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>소모품 발주 관리 시스템</title>
+<title>아주약품 소모품 발주관리 시스템</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --border: #e2e0d8;
-    --text: #1a1a1a;
-    --text-muted: #888880;
-    --accent: #2563eb;
-    --accent-light: #eff6ff;
-    --warn: #d97706;
-    --warn-light: #fffbeb;
-    --danger: #dc2626;
-    --danger-light: #fef2f2;
-    --success: #16a34a;
-    --success-light: #f0fdf4;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-  #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 380px; }
-  .login-logo { font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 0.5rem; }
-  .login-logo span { color: var(--accent); }
-  .login-sub { font-size: 13px; color: var(--text-muted); text-align: center; margin-bottom: 2rem; }
-  .login-tab { display: flex; margin-bottom: 1.5rem; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-  .login-tab button { flex: 1; padding: 8px; border: none; background: none; font-size: 13px; font-family: inherit; cursor: pointer; color: var(--text-muted); }
-  .login-tab button.active { background: var(--accent); color: #fff; font-weight: 500; }
-  .login-form { display: flex; flex-direction: column; gap: 12px; }
-  .login-form input { padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; font-family: inherit; background: var(--bg); color: var(--text); }
-  .login-form input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
-  .login-btn { padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-family: inherit; font-weight: 500; cursor: pointer; margin-top: 4px; }
-  .login-btn:hover { background: #1d4ed8; }
-  .login-msg { font-size: 12px; text-align: center; min-height: 18px; }
-
-  #app-screen { display: none; }
-
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
-  .logo { font-size: 15px; font-weight: 600; }
-  .logo span { color: var(--accent); }
-  .header-right { display: flex; align-items: center; gap: 10px; }
-  .user-badge { font-size: 12px; background: var(--accent-light); color: var(--accent); padding: 4px 10px; border-radius: 20px; font-weight: 500; }
-  .admin-badge { font-size: 12px; background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
-  .btn-logout { padding: 6px 12px; font-size: 12px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; }
-  .btn-logout:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
-
-  nav { display: flex; gap: 2px; }
-  nav button { padding: 6px 14px; border: none; background: none; font-size: 13px; font-family: inherit; color: var(--text-muted); cursor: pointer; border-radius: 6px; transition: all 0.15s; }
-  nav button:hover { background: var(--bg); color: var(--text); }
-  nav button.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
-
-  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
-  .section { display: none; }
-  .section.active { display: block; }
-  .page-title { font-size: 18px; font-weight: 600; margin-bottom: 1.5rem; }
-
-  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
-  @media(max-width:600px){ .cards { grid-template-columns: repeat(2,1fr); } }
-  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
-  .metric-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-  .metric-value { font-size: 26px; font-weight: 600; }
-  .metric-value.warn { color: var(--warn); }
-  .metric-value.danger { color: var(--danger); }
-
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.25rem; }
-  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 1rem; }
-
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-  .form-group input, .form-group select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; background: var(--bg); color: var(--text); }
-  .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--accent); background: var(--surface); }
-
-  .btn-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 1rem; }
-  .btn { padding: 8px 18px; border-radius: 8px; font-size: 13px; font-family: inherit; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text); transition: all 0.15s; }
-  .btn:hover { background: var(--bg); }
-  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .btn-primary:hover { background: #1d4ed8; }
-  .btn-sm { padding: 4px 10px; font-size: 12px; }
-  .btn-danger { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
-  tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: var(--bg); }
-
-  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .badge-ok { background: var(--success-light); color: var(--success); }
-  .badge-danger { background: var(--danger-light); color: var(--danger); }
-  .badge-info { background: var(--accent-light); color: var(--accent); }
-  .badge-admin { background: #fef3c7; color: #92400e; }
-  .badge-user { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
-
-  .empty { text-align: center; padding: 3rem; color: var(--text-muted); font-size: 14px; }
-
-  .rec-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
-  .rec-item.urgent { border-left: 3px solid var(--danger); }
-  .rec-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-  .rec-detail { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-
-  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 8px; font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 999; pointer-events: none; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  .pending-banner { background: var(--warn-light); border: 1px solid #fde68a; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 14px; color: #92400e; text-align: center; }
+:root{--bg:#f5f4f0;--surface:#fff;--border:#e2e0d8;--text:#1a1a1a;--muted:#888880;--accent:#003087;--accent-light:#e8eef7;--warn:#d97706;--warn-light:#fffbeb;--danger:#dc2626;--danger-light:#fef2f2;--success:#16a34a;--success-light:#f0fdf4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#001a4d 0%,#003087 100%)}
+.login-box{background:var(--surface);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-header{text-align:center;margin-bottom:2rem}
+.login-logo-img{width:60px;height:60px;object-fit:contain;margin-bottom:12px}
+.login-title{font-size:16px;font-weight:600;color:var(--accent);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--muted)}
+.login-tab{display:flex;margin-bottom:1.5rem;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.login-tab button{flex:1;padding:9px;border:none;background:none;font-size:13px;font-family:inherit;cursor:pointer;color:var(--muted)}
+.login-tab button.active{background:var(--accent);color:#fff;font-weight:500}
+.login-form{display:flex;flex-direction:column;gap:12px}
+.login-form input{padding:11px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text)}
+.login-form input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.login-btn{padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-family:inherit;font-weight:600;cursor:pointer;margin-top:4px}
+.login-btn:hover{background:#002070}
+.login-msg{font-size:12px;text-align:center;min-height:18px}
+#app-screen{display:none}
+header{background:var(--accent);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:10px}
+.header-logo{width:32px;height:32px;object-fit:contain;filter:brightness(10)}
+.header-title{font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
+.header-right{display:flex;align-items:center;gap:8px}
+.user-badge{font-size:12px;background:rgba(255,255,255,0.2);color:#fff;padding:4px 10px;border-radius:20px;font-weight:500}
+.admin-badge{font-size:12px;background:#fbbf24;color:#92400e;padding:4px 10px;border-radius:20px;font-weight:500}
+.btn-logout{padding:6px 12px;font-size:12px;color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.3);border-radius:6px;background:none;cursor:pointer}
+.btn-logout:hover{background:rgba(255,255,255,0.1)}
+nav{background:#fff;border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;gap:2px;overflow-x:auto}
+nav button{padding:12px 14px;border:none;background:none;font-size:13px;font-family:inherit;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s}
+nav button:hover{color:var(--text)}
+nav button.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+.page-title{font-size:18px;font-weight:600;margin-bottom:1.25rem}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+@media(max-width:600px){.cards{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.metric-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.metric-value{font-size:24px;font-weight:600}
+.metric-value.accent{color:var(--accent)}
+.metric-value.warn{color:var(--warn)}
+.metric-value.danger{color:var(--danger)}
+.metric-value.success{color:var(--success)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;margin-bottom:1.25rem}
+.card-title{font-size:14px;font-weight:600;margin-bottom:1rem;color:var(--text)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+.form-row.four{grid-template-columns:1fr 1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;color:var(--muted);font-weight:500}
+.form-group input,.form-group select,.form-group textarea{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--bg);color:var(--text)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.form-group textarea{resize:vertical;min-height:60px}
+.btn-row{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem}
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-family:inherit;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);transition:all 0.15s}
+.btn:hover{background:var(--bg)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#002070}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-danger{background:var(--danger-light);color:var(--danger);border-color:var(--danger)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);background:#f9f9f7}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafaf8}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-ok{background:var(--success-light);color:var(--success)}
+.badge-warn{background:var(--warn-light);color:var(--warn)}
+.badge-danger{background:var(--danger-light);color:var(--danger)}
+.badge-info{background:var(--accent-light);color:var(--accent)}
+.badge-admin{background:#fef3c7;color:#92400e}
+.badge-user{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.empty{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
+.need-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.need-item.urgent{border-left:3px solid var(--danger)}
+.need-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.need-detail{font-size:12px;color:var(--muted);margin-top:2px}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;transition:all 0.3s;z-index:999;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.filter-bar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text)}
 </style>
 </head>
 <body>
 
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">📦 <span>발주</span>관리</div>
-    <div class="login-sub">소모품 발주 관리 시스템</div>
+    <div class="login-header">
+      <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAGdAZ0DASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAUGAwQHAgEI/8QARxAAAgIBAgMEBgcFBAgHAQAAAAECAwQFEQYSIRMxQVEUImFxgZEyQlKhscHRFSNicuEkM4LwJUNEU1RjkpMWNDVzorLxg//EABsBAQACAwEBAAAAAAAAAAAAAAAFBgIDBAcB/8QAOhEAAgIBAgMECQQBBAICAwAAAAECAwQFERIhMQYTQVEyYXGBkaGx0fAUIsHh8RUjM0IkUiVyNGKS/9oADAMBAAIRAxEAPwD8ZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9VwnZNQrhKcn3KK3bJfC4d1C/aVqjjxf231+SOnHw78l7VQbNVl1dS3m9iGBccXhnBr2d87L37+Vfd1+8lMfBw8fbscaqDXiorf5k9R2WyZ87JKPzf2+ZH2atVH0U38ig04eXd/dY1015xg2jcr0LVZ92K4r+KSX5l6BKV9lMdenNv2bL7nJLV7H6MUUyPDWpPv7GPvn/AEPf/hfUP97jf9Uv0LgDpXZnBXn8TU9Vv9RTnwxqC7rMZ+6T/QxT4c1OPdXXP3TX5l2B8l2Ywn03Xv8A6Pq1W9eRQbdH1Ov6WHa/5fW/A07arantbXOD8pRaOlHyUYyjyyipJ+DW5yW9k6n/AMdjXtW/2N0NYn/2iczBfsnRtNyN+fFhF+cPV/AicvhaL3eJktfw2Lf71+hEZHZnMq5w2kvV1+Z2V6pRP0uRVwb2bpOfh7u3Hk4L68PWX9DRIO2mymXDZFp+s74TjNbxe4ABqMwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT2kcO3ZG1uY3TV3qP1pfodWJh3Zc+CqO7+ntNV18KY8U3sQ2Nj3ZNqqoqlZN+EUWHTuGO6edbt/y4P8X+hYcTFx8SpVY9Ua4+zvfvfiZi6YHZminaV/7n5eH9/nIgsjVLJ8q+S+ZgxMTGxIcmPTCteOy6v3vxM4BZYQjBcMVsiMlJye7AIziHUpadiRlXFStsfLHfuXmypvV9T7XtPTLd/Lfp8u4htQ13Hwre6km347eB242n2Xx409kXTP1HDwXFZN3JKXVJJt/caseINKb29Ia99cv0Iey+jXqIV2zjRn1raDfSNnsIuel6jCbg8K9teUG180ReXrmYpceNFSrfR7N+57PkzrpwKWuG1tS93yL5i5NGVX2mPbCyPi4vuMWoahiYEE8m1Rb7orq38Cs6Fgavi59V0MecK20rOZpJx8ehn1rRdRy9Stvh2coSa5d57bLbuO3/VcyeJ3kKHx77bbPb2+Zo/SURu4ZWLh/ORtW8U4aX7ui+b9uyX4kLqeuZma+WMnRV9iD7/e/E8ZOi6nRFyljSlFeMGpfh1Gk6Vfm2NzTpoh/eWSW23u9pXcnM1XKkqJprfw22/F8iSqow6l3kdnt69zb4Tuzf2ioVynOjZ9ru/VS27/AGMldR4jxcax148HkSXe1LaPz8SE1TUao0/s/TV2eLHpKS77H5v2ESP9WtwKf01E934y6r2R38PX4j9HHIn3ti29X3L7o+q0alCXInXZH6UG/vXmiQOdafmXYOSsihpSS2aa6NeTJtcVXbdcOvf+dk1p/aWmVW2U9pL1dfgcOTpc1P8A2lyLUR2oaNgZm7lUq7H9evo/j4M1dL4ix8u2NN1bonLpF828W/f4E2TcLMTUauW04/nwOCUbsafPkylalw/mYm86l6RUvGK9Ze9EOdNI3VdGxM9Obj2V3+8iu/3rxK7qHZdPeeK/c/4f3+JJ4+qvpaveUQG7qemZWn2bXQ3g36tkfos0in20zpm4WLZomoTjNcUXugADWZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAy4mPdlXxporc5vwXgZdMwL9QyFVTHouspPuii8aXp+Pp9HZ0x3k/pzffJk3pOjWZ8uKXKC8fP1I4czOjjrZc5Gnouh0YKjbbtbkfa8I+79SXAPQsbFqxq1XUtkVu22dsuKb3YAB0GsAAAovEGpvUclcicaa91BPvftZo4uPblXxoog5zk+iJjN1PGhm31W6PjS5ZuL8JPZ9++xkzcijF0Wm7DxY4t2ZzJtNtqKfXZ+3oebXY8Mi6y627i25y5NPrtst1t5JcyzwslXCMIQ236c17TDzabpDSUVnZkX1e/7uD9nn/nuNbK1zUshv8AtDqj9mv1dvj3kaDinqN23BV+yPkuXxfV+83xxob8U/3Pzf5yPdl1tj3stnN/xSbPKbT3TafsPgOFybe7ZvSSNqjUM6h71Zd0fZzNr5EnRxDZZTLG1GpXVTXLKUPVlt+H4EEDso1DJo5Qm9vLqvg+RpsxqrPSiS2bpUZVRytLlPKol0cUt5wfk0Y6tD1Sxc3o3IvOckjxoedPBz4TUn2cmo2R8Gv6GTiau6rVrlbOycZPmg5d2z8F7u74HW4YllDyeB777OKeyXr5pvZ7dPn0NKd0bO63XTdNrn/Bk/YGWvp5GJD+a3+h8ehXL/bsD/vf0IkHN3+J4VP/APr+jb3d3/v8v7JV6HlfUyMSf8tyMv7P4hqglCWQ4Lu5L+n4kPVXZbNQrhKcn3KK3ZPaRoWo9pG2y6WJFPf1X6z+H6nZhVRyZ7U1T9ql94/yab5upbzmvev7JfhxapGmyOo82267Nzacvb/lksAeh41HcVKvib28XzZWrbO8m5bbew821wtrlXZCM4SWzi1umVTXOH50KWRgpzr75V97j7vNFtBzZ+m0Z0OGxc/B+KNuPlWY8t4/A5kC3cQaFHIUsnDio3d8oLun7vaVKUXGTjJNNPZp+B5zqGnXYNnBZ08H4Ms2NkwyI7x+B8ABwHQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADb0vBu1DKVNS2XfKT7orzMWHj25WRCimPNOb2Xs9pfNKwKtPxVTX1l3zl4yZN6NpMs6zilyguvr9SOHOzFjx2XpM96fh0YONGiiOyXe33yfmzYAPR6641xUILZIrEpOT3fUAAzPgAAAAK/xHrduHd6Jix5bEk5Tkt9t/I5MzMqw6nba+RtoonfPggaGpaNmX6llXz7Kihzcu0smktj3qeLXfoVHouRDJlh7qbh9l+z2bIhMrLycmW+RfZZ5c0ui+B703NuwcqN9T38JRfdJeTPP/wBbiOycVBqM+rb3a577pLlyft9pY+4u4YviW8ei8PI1gWbU9Hw8hQux76sS62Kn2Fkkk9/Z3ohsrStQxm+1xbNvtRXMvmjmytLyMdveO681zX9e821ZdVi67PyZpA+tNPZrZnwjjpAMtNF972ppssf8MWyRp0S2EFbqF1eHV/G95P3I6acS6/0I8vPw976Gqd0K/SZqaTiSzM6Fa6QT5rJPujFd7JLN11XZVtV+NTk4nM1BNbNLzTMlGp6TRXZgV41qxrFyzu39eXt2/wA+40tQ0iymr0nEmsrFfVTh3r3oloxsx8fbFkpeM9ufsWz6x68+aORuNlm9y28t/v4MyrTcHOXNpmWo2P8A1F/R/B+JKaZw1RXFTzZdrP7EXtFfmyM4W02OZkSut51VVts4vbeRcya0XTqMmH6m2pLy8n69vxeo4c7Jsql3UJv+fiY6KKMePLRTCuPlGKRkALVGKitktkQ7bb3YABkAAAAQfEejLMg8nGilkJdUvrr9ScBzZeJVl1Oq1bp/L1o2U3SpmpxOZtNNpppro0z4WrirSO0jLPxo+uutsV4rz95VTzHUMCzBudc/c/NFqxsiN8OKIABwnQAAAAAAAAAAAAAAAAAAAAAAAAAur2QJ7hLTvSMj0y2O9dT9RPxl/Q6sLEnl3Rqh4/JeZqvujTBzkTHDWlrBxe1tj/aLF638K8iXAPU8bGrxqlVWuSKlbbK2bnLqwADoNYAAAAAAMV+Pj37dvRVbt3c8U9vmZQYyipLaS3QTae6Nf0HCVbrWJQovvSrRXtRwMHRpvLcu2slJuilrpF+b80i0kbrWkVamoSlZKuyC2Ukt1t7URep4Ktp3pgnNej6v49m/Lc7MXIcJ7Tk+F9Sj322X3Sttm5zk922SOg5GoyzqcfFvs5XJbxb3io+PQka+FJc37zNXL/DX1/EndN07F0+twx4Pd/SnLrJlZ07Qs13qy1uC33b35v4fySmTqFHd8MOfu5EVxLqOTg5dajVjWVTjuu0hu9/HxImWvZP1MXCrfnGrr+JO8V4E8zCjZTFytpbaS72n3/kVLGw8rJs7OiiycvHZdF734H3WrM2nMcK29pc1t/HvGDGidCckt11LDo+rZOo034NlkYZEq32M4rl67dxAZeJm1WNZFFyl5yTe/wAS16DokMBrIukp5G3Tbuh7vaTJIR0W/Oxofq5tTW/r5ev1nK86vHtl3Md0/wA5HNo0Xy+jTY/dFlh4TwtRqyXdNWUY+3rQmtud+HT8y0A3YXZuvGuja7G2vcY36nK2Dhw7b+8811wrjy1wjBb77RWx6ALIkktkRfUAA+gAAAAAAAGPIurx6Z3XTUIQW7bPkpKKbfQJNvZGQpnFGl+h5HpFMdqLX3L6svIlI8UYbu5XRdGvf6fT8CWtjjalgSjzKym2PRr8feiCzI4msUyrqmnKPT1f0yQpd2FNSmtkznYM+djWYeXZj2r1oPbfzXgzAedThKEnGS2aLLGSkt0AAYn0AAAAAAAAAAAAAAAAAAAAAy4lFmTk10VLec5bI6FhY9eJi149S2jBbe/2lf4LwulmdNfwV/m/y+ZZi/8AZrA7mjv5L90vp/fX4Fd1TI47O7XRfUAAsxFgAAANpLdvZIGnq2Xi42JZ6TYoqUGlHfrLp4Gu2yNUHOT2S8zKEXOSijxiaxgZWS8em7efhutlL3G+czjJxkpRbTT3TXgXLhzWFmwWPkNLJiuj+2vP3lc0jX/1c+6v2Un08n6vb9SSzdO7mPHXzXiTQALORYAAAAAAAAAAAAAAAAAAAAB4vtqordl1ka4LvlJ7IVWV3VqyqcZwfdKL3TK9xvdDsaMdT9fmc3H2bbbkfwzqnoWR2F0v7PY+u/1X5kBdrkKc79NNft5c/W/4JCGBKeP3sevkXQAE+R4NDXsSebpllNT9fpKK82vA3war6Y3Vyrl0a2Mq5uElJdUczaaez6MtfBEZ+h5EnJ8jsSivBNLr+KK/rdaq1bKglsu0bXx6/mXDhuj0fR6ItbSmud/Hr+GxRez2LKOoST/6b/Yn9StTxl/+233NLi/A7fFWZXH95SvW9sf6fqVA6RXZVkQsjFqcVJ1zXtXRooWr4jwdQtx3vyp7wfnF9xt7TYSjNZVfSXJ+3+/4MdKvbi6pdV0NQAFUJcAAAAAAAAAAAAAAAAAAHqquVtsK4LeU5KKXtZ5JnhDG7fVO1kt40x5vi+i/P5HTh47yb4VLxf8Ak1X2KqtzfgW7Cx4YuJVjw7q4pe/zZmAPWoQUIqMeiKe25PdgAgNZ4gswtQljVURmoJczk31bW/Q58zNpw4d5c9lvsbKaJ3S4YLmT5iycijGqdt9sa4LxbK7l8U70JYuO42tdXN7qPu8yv5WTflWuzItlZLzb7vd5EHndpsepbUfufwR30aXZN72cl8ye1TiaUt68CHKv95Ndfgv1K9dbZdY7LZynN98pPdngyY9F2Raq6K5WTfhFblOys7Jzp/7j38kunuRNU49WPH9q29ZjPVc5VzjOEnGUXumn1TN7UtKv0/GqtyJRU7G0oLrt72R5z3U2Y8+GxbM2wnGyO8Xui78O6r+0KHXatsitet5SXmSxTuC9/wBrT27uxe/zRcT0jQ8qzKw4zs5tcvbsVjPpjVc4x6AAEucYAAAAAAAAAAAAAMeTdXj4877XtCEW2fJSUU2+iCTb2Rr6rqGPp1HaXPeT+hBd8mVHUNbz8uT/AHrpr8IVvb5vvZq6lmW52XPItff9GPhFeCMEIynOMIreUnsl5s861TW7suxwqbUPDbq/b9iy4mBCmPFNby+h8blOW7blJ/Fs+yjKL2lFxftWxfNH0yjT8eKjGMrmvXs26t+z2G3fRTkV9nfVCyPlJbndX2UsnVxTs2k/Db+dzRLV4qW0Y7ohuEM6zJxJ49u8nRsoy8099l8NidMWLjY+LBwx6oVxb3aiu8yltwaLKMeNdsuJrxIfIsjZY5RWyYAB1mkpeqY7y+KZ48fr2RT28Fst38i4XThj407GtoVwb29iRo4mmOrWsnPslGXaJKtLvXn+Br8YZXY6aqIv175bf4V1f5fMr2PU9OpyMqxbNtv3bvb4tkjZP9TOuqPRJf2R3COdL9oXUWy/v25r+bvf3fgbXGmJz4teZFetW+WX8r7vv/ErGJdLHya74fSrkpI6BfCvOwJQ33hdX0fvXRkbpEv9Q0+zEn1XT3818zqzF+myY3Lo/wA+hzoHqyEq7JVzW0otpr2o8lOaaezJsAA+AAAAAAAAAAAAAAAAFy4Nx+y0x3Ndbpt/BdF+ZTTounU+j4FFG2zhWk/ft1LP2Wo48mVj/wCq+b/rcitWs4alHzf0NgAF+K8Cv8W6X21bzqI/vIL94l9aPn8CwA5M3DrzKXVPx+T8zbRdKmanE5kCY4m0v0HJ7aqP9ntfT+F+RMcK4WO9IVllEJytk93KKe632/I89x9Guty5Ysns1z3/ADzLJZmwhSrVzTKeXLhbNw7sXsKqoUXRXrRX1vb7SI4j0Z4c3k48W8eT6r7D/Qh6bbKbY21TcJxe6a8DLGuu0bLasj7fWvNP89Z8thDOp/a/z1lj45l62JD2Tf4FZJDWNRlqLonOHLOEOWW3c3v3ojzm1bJhk5c7YPk9vojbh1OqmMJdV9yw8ER3zciflWl83/QthWeBo9Muf8i/Esxeez0eHT4evf6sgNSe+RL3fQGLKvqxqJX3zUK497ZlNXVcKGfhTxpycN9mpLwaJa52KuTrW8tuXtOOCi5Li6Ec+J9OT25Mh+3kX6n1cS6a/C9f4P6lW1PCswMuWPY1JpJqS7mjVKHZ2i1CqbhNJNer+ywR0zGnFSjvsXZcR6Y/r2L/AAM9LiHSn/tEl765foUcBdqc1eEfg/uff9Jo83+e4vS17SX/ALWvjXL9D2ta0t92ZD4pr8ihAzXavL8YR+f3MXpFPm/l9jpNF9ORDnothZHzi9zIc5wsu/DvV2PNxku9eDXky+6ZlwzsKvJh05l6y8n4oseka1DUN4NbTXh5+wjMzBlj8090bJAca5DrwaqE9u1nu/cv6tE+VbjnftcXy5ZfkZ69Y68Cxr1L4tIx0+KlkR3K2SHDkFZreLF9yk5fJN/kR5u6HcqNWxrJPZKaTfv6fmed4Tismty6cS+pZb03VJLyZ0AAHrhTgAQXGOVdRiU102Sh2knzOL2ey8PvOXNyo4lErpLdI20VO6xQXiToILg3Iuuw7oW2Smq5rlcnu0mu4nRh5UcqiN0VtuL6nTY4PwBUeM6clZsMifWhxUYNfVfin7Sa1LW8XCza8aXrbv8AeNfUXgb2RTTmYsqrEp1WR719zRw59VWp0zx65/ui/n6/V/PsN+POeLONko8mc4LvwnkdvpEIt7yqk4P3d6+5lT1XBt0/MlRZ1XfCX2l5kvwRdtk5GO30lBTXwe35lT0Gc8XUO6mtm90/z2omNQjG7G44+HM0uKsfsNYsaW0bUrF8e/70yKLTxxTvXjZCXc3B/HqvwZVji1qjuM2yK6N7/Hmb8GzvKIv3fAAAizrAAAAAAAAAAAAAAANjTau21DHq8JWRT9250UovC8OfXMffujzS+SZei99lK9sec/N7fBf2V/V5b2Rj6gAC1ESAAAeba67YOFtcbIvvjJbo+wjGEVGEVGKWySWyR9B84VvvtzG722Pk4xnBwnFSjJbNNdGil8Q6PLAs7alOWNJ9P4H5Mup5trhbXKuyKlCS2afc0Rup6ZXn1cMuUl0fl/R1YuVLHnuunijmgNjUqq6NQvpq35IWOK39jNc8wsg4ScX4FrjLiSaLdwRHbAvn527fJL9SfIbg6PLo6f2rJP8ABfkTJ6fo8eHBqXq+vMqma98iftAAJM5SmcYr/THvqj+ZCk5xqttWrfnSvxkQZ5Zq62zrfaWzC/4Iewn+DsejIuyVfTXaoxjtzxT27/Msf7N0/wD4HH/7aIHgb+/yv5Y/iy0lz0CiqeBByim+fh62Qmo2TjkSSfl9DRs0jTbIuLw6Un9mOz+4qGvaf+zs3s4NyqmuaDfft5F9KlxtdCebTTFpyrg3L2b+H3GjtHh48cR2KKUk1tty9xs0y6x3cLe6K+Wfge57ZOO306TS+5/kVgn+CN/2hc/DsvzRWNCm4Z9e3r+jJXUIp48ty3EBxtQ54NN6W/Zz2fuf/wCInzBn48cvDtx591kdt/J+D+Z6DqGN+qxp1Lq1y9vVfMreNb3VsZ+RzkGTIpsx7502x5ZwezRjPKJRcXs+qLemmt0Xzh/PWfgRk3+9h6ti9vn8SROdYOXfhXq7HnyyXevBryZZcTijFlBLJpsrn4uPrIvuldoKLKlDIlwyXi+jK9l6dZGblWt0/kWAqXGuQp5tOPF79lBt+xv+iXzNrO4opUHHDplKb+tZ0S+HiVyKvzcxLd2XXT7/ADbOXXtXpvq/TY74m2t9vp8Tdp+HOufe2LbYtXBlThpcrGv7yxte5dPx3JPVcn0TT78jfrGPq+99F957wseOLiVY8O6uKW/n7SE42yOTEpxk+tknJ+5f/v3ExY3pumeuMfm/7ZxR/wDKyvU38v8ABCaBRHN1iuGQnZFtynu+/pv1+JdLL8fElRQ+WtWPkrSWy38ivcE4r7S7MkvVS7OL9ve/y+Zo8S6is3PSql+6p9WDXi/F/wCfIgsDJWmacr2v3zfLza5fLr8TvyKnlZPdp8oos+u6dHUcNwWyuh1rl7fL3Mq3DkpY+u0wmnFuTrkn57NfiWThvUvT8Pksl+/q6T/iXgzT4hwexz8fVaY9I2x7VL3rZ/kdmoUQyFVqWP4NN+xP6rx9XsNONZKvjxbPHfb89ZucV1dpotr26wcZL57fmUc6Hq8O00vKh51S29+xzwjO1Ve2TCfmvozq0iW9Tj5MAAq5LAAAAAAAAAAAAAAAE1wbHfWN/s1Sf4IuZT+Cv/VbP/Yf/wBolwPROzK2wfeytaq/9/3IAAsJHAAAAAAAhOK9QysKqmOM+TtG+ae2+223T7ybMWVj05NLpvrjZB+DOTOpsvolXVLhk+jNtE412KU1ujnNk5WWSsm95Sbbfm2eSd1jh67H5rsPmuq73H60f1II8vy8S/Fs4Lls/r7y103V2x3gy9cMR5dDx/bzP/5MkyL4Xyar9JrhDdSpXJNPz8yUPTtOcXiVcL3XCvoVXJTV0t/NgAHaaSo8bL/SNL/5P5sgCw8cL+2Y7/5b/Erx5fra2z7Pb/CLXgPfHibmmajkadKcsdQbmknzLfuN/wD8Taj9mj/of6mhpmnZGoynHHcN4JN8z27zdfDepLwpf+M2Yj1RVL9PxcPht0Mbv0nG+8239Ys4k1KcHFOmDfjGHX7yIsnOyyVlknKcnu231ZKvhzVF/q63/jR8XDuqOW3ZQXtdiPmRj6pkbd7Gb280xXbiV+g0iJLhwfhSowp5Ni2le1yp/ZXd8zFpfDUKpq3Nsja11Vcfo/F+JYkklslsif0HRLaLP1F62a6L+WR2oZ0LI93Xz82AAW4hyH4i0dZ8O2o2jkxXwmvJlNtrnVZKu2EoTi9nFrZo6UamoadiZ0dsipSku6S6SXxK3q+gRy5O2l7T8fJ/Zknh6i6VwT5r6HPQWm7hWDe9OZKK8pw3+9NHmrhRb/vc1teUa/6lYfZ7UOLbg+a+5K/6ljbb8XyZWYRlOSjGLlJvZJLdsuHDWjvCj6TkpekSXSP2F+pvabpOFgPmprbs+3N7y/obcrqY2RqlbCM5fRi5JN+5Fj0nQY4kldkNOXgvBfdkZmag7lwVrkepSjGLlJqMUt22+iKfn8+va52eM/3MFyqe3RRXe/8APsNvjSrJXZ39tJ479VwXcpd+/tMHD2q4GnYE42Qm75S3fLH6S8Opr1PMhkZSw7/2Vrm2/wDt5JGWLS66u+r/AHSfJeoncqmGDoV9OP6qrols/HfZ9feUIndX4hlmYs8amjsoz6Sk5btryIIhNezaMmyEcd/titvJHfp9FlUZOzq2bWl5k8HNryIbtJ7SX2o+KL8uxy8XfpOq2HzTOblq4LzZTqswp7vs/Xg/Z4r5/idfZrP4LHiz9GXT2/2jTqmPxR72PVFgvjzUTj5xa+45qdNOZHR2tXOp/wD2/g1aM+U/d/IABTibAAAAAAAAAAAAAAAJzgt7atNedLX3ouJSeEZcutVr7UJL7t/yLseh9mJb4W3k3/BW9VW1/uAALERoAAAAAAAAAIrV9Dxs7eyG1N/20ukveiVBoyMarJh3dsd0Z12zqlxQezI7QtMWmY84OztJzlvKW2y9iJEA+0UQorVda2SFlkrJOUurABAcVall4U6asaSrU0257bv3dTXmZcMOl3WdF5GVFMrpqEepqccbdvi+fLL8UVwzZWTflW9pkWysnttu/IwnmOo5UcvJndFbJ/bYtWNU6alB+BZOBv73Kf8ADH8y0lB0bU7dNulOEI2RmtpRb23+JbtE1OGp0zmqnXOD2lHffv7upcezmfQ8eONv+9b8ve2Qup49isdu37eRIAAs5FAAAAAAAAAAAxZd8MbGsvs+hCO7MZSUU5S6IJNvZGHVs2GBgzvk1zbbQi/GXgVHRIX6hrtVtkpTlGfazk/Z1/HZGPLyc3Wc6MVFzk3tXXHuiv8APiWzQdMjpuM02pXT6zkvwXsKip2a1mRlFNVQfxf9/JEy4xwaGn6chxFi2ZelWVVJOaakl57eBQzppznUKpU519U48rjN9Piae1eMlOF68eT93T+TZpFralX7zAACoEyC78M6f6FgKdkdrrvWl7F4Ig+FdN9LyvSbY/uan03+tLyLNq+bHBxHZ0dsny1x85MuHZ7CjRXLOu5JdP5f8IhdSvdkljw95tyfLFvyW5zM6Pmy7PBvm39GuT+SOcDtbLeVUfb/AANHXKb9n8gAFPJoAAAAAAAAAAAAAAA3tBs7LWcWXnYo/Pp+ZfzmlU3XbCyPfGSkvgdJrkp1xnHqpJNF37J2712V+TT+P+CB1iH7oyPQALcQ4AAAAAAAAAAAAAAAMOVjY+VX2eRVGyPek13GYGMoRmuGS3R9Tae6IuWgaVL/AGZr3WS/UxS4b0x90bY+6ZMg4paXhy61R+CNyy71/wB38SClwvgv6N2Qv8Sf5Elpen0adQ6qOZ8z3lKT6s2wfaNNxcefeVwSYsyrbI8MpboAA7jQAAAAAAADQ1rUq9OxXNtO2S2rh5vz9xquuhRW7LHskZQhKySjHqyO1/Xp4mRLFxYRc4/SnLrs/Yit5efmZW/pGTZNP6u+y+XcYLbJ22yssk5Tk95N+LPtHL29fP8AR5lze7c8yzdTyM2x7yai3yXhsWqjFroitlz8y6cNadHCwo2zj+/tScn5LwRLHxNcvMmttt9z5XZXYm67IzS6Nxe56VjUV41UaYdEVe2yVsnOR6KfxqorVK9ls3Sm/b1ZcCs8Y2YNtFUq7a55ClsuSSfq+O/xIvtFBTwZLdLbZ8zr02XDeuRWDa0vCtz8uNFXTxlLwivMw41FuRfCmmDlOb2SRe9G06vTsRVx2lZLrZPzf6FP0bSpZ1u8vQXX7Ezm5ax4bL0n0M1VePgYShHaumqPVv8AFlStzJ6rr+O3uqlbFQj5R36/Ey8Uat6XY8THl+4g/Wa+u/0MPCVPa6zCW3SuMpv5bfmS+oZ6y8qvCo9BNJ7eO38I48fHdNUr7PSaf57yz8Q2dlouVLzhy/N7fmUEuPGdvJpkKk+tli+S6/oU44+1FvHmKPkl9zdpMNqW/NgAFbJQAAAAAAAAAAAAAAAF84bv7fRqHvu4Lkfw6fhsUMs3BGT1vxG/KyP4P8iwdmsjuszgfSS2/lEdqlfHRv5FnAB6KVoAAAAAAAAAAAAAAAAw5eTRiVdrkWxrhvtu/MyVWQtrjZXJShJbpruaMFZFy4N+fkfeF7b7cj0ADM+AAAAAAAA+SajFyk0kurb8AD6CLzde07GTSt7af2a+v39xqaNrd+oat2LhGunkbUV1e/TvZHT1XFjbGlT3k3ty5nSsS5wc9tkjb13V69NgoKHPfNbxj4L2spmXkXZV8rr5uc5eL8PYWHjmv/ytq/ii/u2/MrBTO0eVdPKlTJ/tjtsvcTemVQjSppc2AC28FVU+g23ci7XtHFy267bLp95G6bgvOvVKlt6zqysjuK+Pbcqztt7Ps3ZPkX1eZ7fIUX3UT56LZ1y84SaLbxdh02adPL5EramvWS6tN7bP5lONmpYVmn3qty35bp+r+DHFvjk18SWx0PSbZXaZjWzk5SlXHmb8Xt1KNl0WS1S7Hqg5T7aUYxXj1ZcuGnzaHjP+Fr/5My4enUY+XflJc11sm3J/VT8EW/M0+Wp4+Pz25Jt+ppELTkrFss5ez4mvoGkw06nmntLImvXl5exEbxRrPSWDiT9ls1/9V+Zk4k1tVqWHhz/ed1li+r7F7SqEXq2p141X6LD5Jcm/49vmzrw8WVs+/u9359AWrgijanIyWvpSUI/Dq/xRVToOi43oel0UyW0lHmn731ZydmcbvMvvH0ivm+X3N2q28NPD5ld41v586qhPpXDd+9/0SIA2dVyPS9RvyN91Ob5fd3L7jWInUsj9TlWWro3y9nRfI7MavuqYxAAOI3gAAAAAAAAAAAAAAA3NHyvQ9Spvb2ipbT/lfRmmDZVbKqasj1T3MZxU4uL6M6auq3QIvhjM9L0uEZPeyn1Jfk/kSh61jXxyKo2x6NblOtrdc3B+AABvMAAAAAAAAADFk5NGNX2mRbCuPg5PvMOFqOHmWSrxru0lFbv1WunxIvjDBvya6b6ISs7PdSiur2fjsaPBW8dRvi00+y7n70QN2qX16jHF4Eovx58+Xh4EhDErljO3fmvAkeNVvpVb8rl+DJLScd4mm0Y8nvKEfW976s0OMFvo7flZF/iVjK1XPyaI0W5EnWltsum/v27zjzdQq0/PnZOLcnFbfPff5G6jGnk48YxeyTe5b83WtOxG4yv7Sa+rX6z/AEIuziuKl+7wpNecrNvyKuZ8DGszMuvGq2Upvbd+HmyHs7RZ981GraO/RJb/AF3O2OmY9cd58y76NqdWpUSnCDhOD2lFvfb4m+aek6fTp2N2VTcm3vOb75M3C84iuVMe/wDT8diAu4O8fd9AebbIVVStskowit5N+CPRG8TU2XaNdGrdtbSaXik92ZZNsqqZ2RW7Sb2PlUVOai3tuyLzuKNpOOHjprwnZ4/BELn6pnZq5b73yfYj0j/U0geZZWrZeVurJvZ+C5L89paqsOmr0Y8wS3CT/wBN1+2MvwIkl+EVvrUH5Qk/uMdL/wDzav8A7L6n3L/4J+xkxxtHfTapeVyX3MqBc+Mv/SF/7sfwZTCR7TLbOfsRzaW98f3sFx4Lg46VOT+ta2vdskU9JyaSTbfRJHQtIxvQ9Oox39KMfW976s3dlqHPKlZ4RXzf4zXq1iVSj5s1OLN/2Hdt3bx3/wCpFPwMLIzr1Tjw5n4vwivNnQMvHrysazHt35JrZ7d5jopxNOxGoKFNUVvKTf3tk7qWi/rctWzltBLn58m/zc4MXO7ilwit5NjS8RYOBViqfPyJ+tttu29/zITifWZ1Tng4u8ZrpZZ4rddy/Un8PIryseN9W/JPfl3W2/XYpHEr31zJ/mX4Ix1zIeLgQWO9k9ly8tvA+4FStyG7VzXP37kcADz4sZIcP4npmq1Vtbwi+efuX+Ui18SZXomk2yT2nZ+7j73/AE3NTg/D7DBllTW07n09kV3f59xF8YZnb56xoPeFC2f8z7y5Uf8AxmkOx+nZ09/T4LmQln/lZij4R/PryIMAFNJsAAAAAAAAAAAAAAAAAAAAAlOGs70LUY872qt9Sfs8mXk5kXbhfUPTMFVWS3upST9q8GXHsvqG2+LN+tfyv5+JCarjdLY+8lwAXQhAAAAAAAAAAPHcAA8zhCcXGcYyi+9Nboq3Fml42LVDLx0q+afLKC7u5vdeXcT+q6hRp2Orbt25PaMY97ZTdY1S/UrU5pQrj9CCfd7X5srHaPKxFS6prezw8169/D+SU0yq5zU48o/U0DJjX2418L6ZctkHumYwUKMnFqUXs0WFpNbMtfDWsZebmzoyXCS5HJNR2aaaLEUXhvNrwdSVl3SucXBv7O7XX7i9Lqt0ejdnsuWRi/vlxST579fUVrUqVXb+1bJgAE8R5Qdew/QtTsqitq5evD3P/OxoFr42x1LGpykusJcj9z6/l95VDy3WMRYuZOC6dV7H+bFswru9pjJ9QTvBUObVLJ+Ean+KIIs/A1fTKua+zFfe3+RnodfHn1r17/BGOfLhx5G3xo9tJgvO5L7mU6EZTkowi5Sb2SS3bLdxhXdkVYuNRXKycpuW0V5L+pm4e0eGDWrr4qWTJdfHk9i/UnNS023UNScY8opLd/P48zgxcqGNipvq9+RrcP6C8ecMvM2di6wr+y/N+0sIBaMPCqw6+7qXL6+0ib753y4pmpqeoY2n0898/Wf0YL6UimavquTqNn7x8lSfq1p9F7/NnnWsqWZqV1re8VJxh7IruNIomsazblzlVB7QXz9v2LBhYMKYqcucvoX/AEGPJo+Kv+Wn8+pTtflzazlP/mNfIvWFX2WHTV9iuMfkjn+pT7TUcmf2rZP72SnaNd3hU1/nJHJpn7r5y/Oprm1pWHLOzq8eO+ze8n5R8TVLnwpp/omF6RZHa65b9fCPgvzIDR8B5uSoP0Vzfs/skc3I7ipvxfQ3tTyq9N02VqSXJHlrj7fBFAnKU5ynNtyk9234sl+KtQ9LzewrlvTS9lt9aXi/yIY6tfz1lZHBD0Ycl7fH7GrTsfuq+KXVgAECSAAAAAAAAAAAAAAAAAAAAAANnTMyzBzIZFfXbpJfaXijWBnXZKuanB7NGMoqScX0Z0jFvryceF9MuaE1umZSmcM6r6Ff6PfL+z2Pvf1H5+4ua6rdHp+l6jDPoU16S6r1/ZlVy8Z49nD4eAABJnKAAAAAAAAAR+uabDUsVQcuSyD3hL8n7CjZNFuNfOi6LjOD2aOkkNxRpjzcdX0Q3yK/Bd8o+RWtf0hZMHfUv3rr619/8Epp2a6pd3P0X8ilg3JaZqMe/CyPhW2ef2dqH/A5X/al+hRni3LrB/Bk93sP/ZGqdA0Ocp6Riyn1fZpFLhpeoyaSwshb+dbRfcWpUY1VK7q4KPyRauy2PbC2yck0tkuZE6tZCUIpPcyAAuhBkXxVBS0O9+MXFr/qRR0nJpJNt+COkZFNWRTKm6HPXLvXmeKcfFxIN1U1Upd7SS+bK5q2hyz8hW8aiktvX1ZJYeesetw23e5SsPRNSydnHHdcX9az1V+pbdC096dhOmU1OcpOUml07l+h5yNa0+marjd21jeyjV6279/cSJt0rS8LGm5Uy4pLq9+m/sMcvLvtilNbJgEbptGS9Qys3JclGb5KYN90U+/bw32RJExRa7Y8Tjt1+Hn7zisioPZPcEbxHmSwtLnOt7WTahF+W/j8tz7rGr4+m8sZqVlsluoR8vN+RUtY1S/UrU7EoVx+jBdy/VkLrOsU49U6oS/3Hy5eG53YWFO2anJftNAz4FXb51FO2/PZGL+ZgJfhKntdZhLbdVRc3+H5lEwqe/yIV+bRYL593XKXki53TVdM7H3Ri5P4HNm222+995fOIrux0bJlv1lHkXx6FP0fTrdRylVDeNa62T+yv1LP2mU78mrHrW72+v8AgitK4a6p2S6fb/JucMaW83I9Iuj/AGet+P135E3xPqfoWL2FUtr7Vstvqx8zbyrsXSNNTUVGEFywgu+TKNmZFuXkzyLpbzm9/d7D5l2Q0bE/TVP/AHJdX5fnRfEUxlm3d7P0V0/PqYQAU8mgAAAAAAAAAAAAAAAAAAAAAAAAAAAWbhfWduXByp9O6qb/APq/yKyDswc63CuVtfvXmjRkURvhwyOmgrXDmuKSjh5s/W7q7H4+x/qWU9Nwc6rNqVlb9q8UVa/HnRPhkAAdhpAAAAAAAAANWeo4ELJVzy6YTi9mpS22YWo6f/x2N/3Y/qVDimp1a1c9tlNKa+X6pkWUzJ7S30XTqda/a2vEm6tLrsgpqT5o6Pj5WNkNqi+q1x7+SSe3yMxQNG1CenZfbRjzxa5Zx323RYnxRgcm/ZZHN5cq/Uk8DtDj31b3SUZeRy5Gm21y2gt0Tpjvvpohz3Wwrj5yexU9R4kyr04YsVjw+1vvJ/oQlk52Tc7JynJ97k92zly+1NNb4aI8Xr6L7/Q206TOXOx7Fg1riGydvZadY4Vrvs26y92/ciCvyMjIlvddZa/4pNmI91RnK2Ma4uU2/VSW7bKllZ+RmTbsk3v4eHuRM1Y9dMdor3lq0Th+NEqsrKm3dFqSgu6L9vmWA81uThFzSUtlul5kPxFrNmnW100QrnZJc0uffovDu+J6HGOJpONxJbR+bZWm7sy3bqyaDaS3fREJpXEWNkLky+XHsXi36r+PgafEeuQsrlh4U+ZS6WWLu28kY261iQx+/jNPyXjv5bH2GDdKzu2tiG1vKWZqd18XvBvaHuXQ0gDzS62V1krJdW9/iWmEFCKivAFr4Ix+XHvyWvpyUI+5d/4/cVRdXsjoek43omnUY+20ox9b3vq/vLB2Yxu9y3a+kV83y+5Harbw08HmaPElF2c8fAo+tLnsl4RiunX5/cbdNeJo+nPqoVwW8pPvk/1M+XkU4tMr75qEIrq/P2FI1rVLdSv3e8KYv1Ifm/aT+pZVGnWSvf7rZckvJfb6kdi02ZMVX0guvrPOsajbqOU7J7xrj0rh9lfqaIBQLrp3Tdlj3bLFCEYRUYrkgADWZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsGg6/KhRxs2TlV3Rs73H3+aK+Drw827Ds7yp7P5P2mm+iF0eGaOlwnGcFOElKMlumnumeih6Rq+Tp0+WL7SlvrW30+HkXHTdRxc+vmon6y+lB9JI9C03WaM5cPSfl9vMreVg2Y736rzNsAEwcYAAAAABDcTaVLPpjdTt21SfT7S8veUs6ac61HGsw8yzHt+lF9/mvBlH7U4UYTjkQXpcn7fD89RPaTe5RdbfToetMeEspPPjOVOz+j5mbV3pblD9mwtj38/N3fDfqR4K1HI2pdXCufjtz+JKOvefHu/Z4AA+xTlJRim23skvE5zYZ9PxLs3KjRTHdvvfhFebL9hYmPh0qrHrUYrx8X72a+h4FeDgwioJWyinY/Fvy+Bvno+iaSsKvjn6cvl6vuVnPzHfLhj6K+YNevDojkzyZQU7pv6clu0vBLyNXWdXq02VUZwdkp7tpPql5/MhNS4luug68St0J98295fDyN2dq2Fjtxte8o+G2/P6GujDvsW8Fsn4nnjOzHnnVwqUe1hF9o19yf8AnxIE+ttttttvq2z4eeZuS8q+VzW2/gWWiruq1DffYAzYuNflWqrHqlZN+C8Pf5Fp0fh6nH2uzHG61dVH6sf1N+BpeRnS/wBtcvN9DXkZddC/c+fkRnDmj3X5FWXdHkohJSXMus9u7b2Fm1PUMfT6e0vl6z+jBd8iO1jiCjFTpxOW67u5vqx/UqeTfdk3SuvslOcu9sn56hjaPU6MV8U31fhv+eHxI6OPbmzVlvKPgjY1XUcjUb+e17QX0ILuj/U0gCp22zum52PdsmIQjCPDFbIAA1mQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPdVllVisqnKE490ovZo8A+ptPdBrcsul8TSjtXnw5l/vYLr8V+hY8bIoya1ZRbGyPnFnNzLj33Y9isotnXJeMXsWTA7S30bRvXGvn/fv+JF5Gl12c6+T+R0gFUwOJ7obRzKVavtw6S+Xc/uJ3C1bT8vZVZEVJ/Vn6r+/vLbiaviZXoT2fk+T/PYQ92FdT6S5G8ebbIVVStskowit5N+CPRo69jW5elXUU/TezS379nvsdt85V1SlBbtJ7LzNFcVKaUnsjV0vXqc3PnjcnZp/3Tb6y944o0z03F7eqO99S6JfWj4op043Y920ozqsi9+q2aZdeH9UjqGNyzaWRWvXXn7UVbTtQWpwnh5npPp4fjXgS2TjPFkrqei/PmUYFi4p0h1TlnY0P3cutkV9V+fuK6VTNw7MO51Wf5XmS9F8b4KcQeq5yrsjZB7Si1KL8mjye6KrL7oU1RcpzeySOaKk5Lh6m17bcyw6HnatqWocryOWmKTs5YLZLyXtZZr7YU0zuslywgm5P2Gto+BDT8KNMdnN9Zy82RfEzzsySwcPHtlWnvZPbZSfgt30PRqXdp+E52tzsfhzfN9EvZ4lZnwZN/DDaMV7uXmVvU8uedm2ZE+nM/VXkvBGsTuNwxnWbO6yqle/mf3dPvJOjh/TcWPaZVjs273OXLH/AD8Spw0TPypOyyO2/NuXL+/kTEs7HqSjF77eRVMfHvyLOzoqnZLyityf03hictp51nKv93B7v4s3b9d0vBr7LEgrNu6NUeWPz/8A0g9Q17Pyt4xmqK39Wvv+L7zoWPpmDzun3svJdPz3+41OzKyOUFwrzfUsd+bpejU9jWoqS/1dfWT9/wDUreq63l528E+xpf1Ivv8Ae/Ei31e7ByZut35Me7h+yHkvz7I3UYFdT4pful5sAAhjuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANvF1HOxdlRk2RS+rvuvk+hJ4/FGZDZXU1WrzW8WQIO2jUsrH5V2NL5fB8jRZi02elFFshxLg3R5cnEsXwUkZsbVNAVitrVVNi8excX80imgkodo8tNOajJ+tfbY5ZaZS+SbXvOgLVdMmtvTKNn4OW34mhLD4anJyc8VNvfpkbL5blOBus7Ru7bvqYy28/wC9zCOmKHoTaLj6Lw1D62K//wC+/wCZkpyuH8OfPTPHhJLbmjFtlKBrjr/dveuiCfs/wZPTuLlKyT95dbeI9Mh9Gdtn8sP12NK/iqC6UYkn7Zz2+5FXBjb2kzp9Go+xffcyhpePHqtyXyeItSu3UJwpX8Efze5GX33Xz57rZ2S85SbMYIm/MvyP+WbftZ11011+hFIAA5jaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf/Z" class="login-logo-img" alt="아주약품">
+      <div class="login-title">아주약품 소모품 발주관리 시스템</div>
+      <div class="login-sub">Aju Pharm Co., Ltd.</div>
+    </div>
     <div class="login-tab">
       <button class="active" id="tab-login" onclick="switchLoginTab('login')">로그인</button>
       <button id="tab-signup" onclick="switchLoginTab('signup')">회원가입</button>
@@ -125,7 +105,7 @@
     <div class="login-form">
       <input id="auth-email" type="email" placeholder="이메일">
       <input id="auth-password" type="password" placeholder="비밀번호">
-      <input id="auth-name" type="text" placeholder="이름 (팀에서 표시될 이름)" style="display:none">
+      <input id="auth-name" type="text" placeholder="이름" style="display:none">
       <div class="login-msg" id="auth-msg"></div>
       <button class="login-btn" id="auth-btn" onclick="handleAuth()">로그인</button>
     </div>
@@ -134,646 +114,575 @@
 
 <div id="app-screen">
   <header>
-    <div class="logo">📦 <span>발주</span>관리</div>
-    <nav id="main-nav"></nav>
+    <div class="header-left">
+      <img src="data:image/png;base64,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" class="header-logo" alt="아주약품">
+      <span class="header-title">아주약품 소모품 발주관리 시스템</span>
+    </div>
     <div class="header-right">
       <span id="role-badge"></span>
       <span class="user-badge" id="user-display"></span>
       <button class="btn-logout" onclick="handleLogout()">로그아웃</button>
     </div>
   </header>
+  <nav id="main-nav"></nav>
   <main id="main-content"></main>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// =====================================================
 const SUPABASE_URL = 'https://woohpuhljpamgappqcdu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indvb2hwdWhsanBhbWdhcHBxY2R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MzE0MjYsImV4cCI6MjA5MDUwNzQyNn0.yATuXGWne2w8WlsPRPwlL2_w-1C4TSOqyqRrt_U6t1A';
-// =====================================================
 
-let currentUserName = '';
-let currentRole = 'user';
-let currentUserId = '';
-let authToken = SUPABASE_KEY;
-let loginMode = 'login';
+const DEPARTMENTS = ['공장지원팀','생산기획팀','공무팀','물류팀','위수탁영업팀','고형제제조1팀','고형제제조2팀','고형제포장1팀','고형제포장2팀','주사제제조팀','주사제포장팀','제제개선팀','품질관리1팀','품질관리2팀','품질보증팀','DI팀'];
+const DEPT_OPTS = DEPARTMENTS.map(d=>`<option value="${d}">${d}</option>`).join('');
 
-function getHeaders() {
-  return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}`, 'Prefer': 'return=representation' };
+let currentUserName='', currentRole='user', currentUserId='', authToken='', loginMode='login';
+
+function getH(){return{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${authToken||SUPABASE_KEY}`,'Prefer':'return=representation'}}
+async function api(path,method='GET',body=null){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{method,headers:getH(),body:body?JSON.stringify(body):null});
+  if(!res.ok){const e=await res.text();throw new Error(e)}
+  const t=await res.text();return t?JSON.parse(t):[];
 }
-
-async function api(path, method='GET', body=null) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method, headers: getHeaders(), body: body ? JSON.stringify(body) : null });
-  if (!res.ok) { const e = await res.text(); throw new Error(e); }
-  const t = await res.text();
-  return t ? JSON.parse(t) : [];
-}
-
-async function authApi(path, body) {
-  const res = await fetch(`${SUPABASE_URL}/auth/v1/${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY }, body: JSON.stringify(body) });
+async function authApi(path,body){
+  const res=await fetch(`${SUPABASE_URL}/auth/v1/${path}`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify(body)});
   return await res.json();
 }
+function today(){return new Date().toISOString().split('T')[0]}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function fmtAmt(v){return v?(parseFloat(v)).toFixed(1)+'만원':'-'}
 
-function today() { return new Date().toISOString().split('T')[0]; }
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function switchLoginTab(mode){
+  loginMode=mode;
+  document.getElementById('tab-login').classList.toggle('active',mode==='login');
+  document.getElementById('tab-signup').classList.toggle('active',mode==='signup');
+  document.getElementById('auth-name').style.display=mode==='signup'?'block':'none';
+  document.getElementById('auth-btn').textContent=mode==='login'?'로그인':'회원가입';
+  document.getElementById('auth-msg').textContent='';
 }
 
-function switchLoginTab(mode) {
-  loginMode = mode;
-  document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-  document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
-  document.getElementById('auth-name').style.display = mode === 'signup' ? 'block' : 'none';
-  document.getElementById('auth-btn').textContent = mode === 'login' ? '로그인' : '회원가입';
-  document.getElementById('auth-msg').textContent = '';
-}
-
-async function handleAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const password = document.getElementById('auth-password').value;
-  const name = document.getElementById('auth-name').value.trim();
-  const msgEl = document.getElementById('auth-msg');
-  msgEl.style.color = 'var(--danger)'; msgEl.textContent = '';
-  if (!email || !password) { msgEl.textContent = '이메일과 비밀번호를 입력해주세요'; return; }
-  if (loginMode === 'signup' && !name) { msgEl.textContent = '이름을 입력해주세요'; return; }
-  document.getElementById('auth-btn').textContent = '처리 중...';
-
-  if (loginMode === 'signup') {
-    const res = await authApi('signup', { email, password, data: { name } });
-    if (res.error) { msgEl.textContent = '가입 실패: ' + res.error.message; }
-    else { msgEl.style.color = 'var(--success)'; msgEl.textContent = '가입 완료! 로그인해주세요.'; switchLoginTab('login'); }
-    document.getElementById('auth-btn').textContent = '회원가입';
-  } else {
-    const res = await authApi('token?grant_type=password', { email, password });
-    if (res.error) { msgEl.textContent = '이메일 또는 비밀번호가 틀렸어요'; document.getElementById('auth-btn').textContent = '로그인'; return; }
-    authToken = res.access_token;
-    currentUserId = res.user.id;
-    currentUserName = res.user.user_metadata?.name || email.split('@')[0];
-    // 권한 확인
-    const profiles = await api(`profiles?id=eq.${currentUserId}&select=role,name`);
-    currentRole = profiles.length > 0 ? profiles[0].role : 'user';
-    if (profiles.length > 0 && profiles[0].name) currentUserName = profiles[0].name;
-    document.getElementById('auth-btn').textContent = '로그인';
+async function handleAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  const name=document.getElementById('auth-name').value.trim();
+  const msgEl=document.getElementById('auth-msg');
+  msgEl.style.color='var(--danger)';msgEl.textContent='';
+  if(!email||!password){msgEl.textContent='이메일과 비밀번호를 입력해주세요';return}
+  if(loginMode==='signup'&&!name){msgEl.textContent='이름을 입력해주세요';return}
+  document.getElementById('auth-btn').textContent='처리 중...';
+  if(loginMode==='signup'){
+    const res=await authApi('signup',{email,password,data:{name}});
+    if(res.error){msgEl.textContent='가입 실패: '+res.error.message}
+    else{msgEl.style.color='var(--success)';msgEl.textContent='가입 완료! 로그인해주세요.';switchLoginTab('login')}
+    document.getElementById('auth-btn').textContent='회원가입';
+  }else{
+    const res=await authApi('token?grant_type=password',{email,password});
+    if(res.error){msgEl.textContent='이메일 또는 비밀번호가 틀렸어요';document.getElementById('auth-btn').textContent='로그인';return}
+    authToken=res.access_token;currentUserId=res.user.id;
+    currentUserName=res.user.user_metadata?.name||email.split('@')[0];
+    const profiles=await api(`profiles?id=eq.${currentUserId}&select=role,name`);
+    currentRole=profiles.length>0?profiles[0].role:'user';
+    if(profiles.length>0&&profiles[0].name)currentUserName=profiles[0].name;
+    document.getElementById('auth-btn').textContent='로그인';
     showApp();
   }
 }
 
-async function handleLogout() {
-  await fetch(`${SUPABASE_URL}/auth/v1/logout`, { method: 'POST', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${authToken}` } });
-  authToken = SUPABASE_KEY; currentUserName = ''; currentRole = 'user'; currentUserId = '';
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('auth-password').value = '';
+async function handleLogout(){
+  await fetch(`${SUPABASE_URL}/auth/v1/logout`,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${authToken}`}});
+  authToken='';currentUserName='';currentRole='user';currentUserId='';
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('auth-password').value='';
 }
 
-function showApp() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'block';
-  document.getElementById('user-display').textContent = currentUserName;
-  const rb = document.getElementById('role-badge');
-  if (currentRole === 'admin') { rb.className = 'admin-badge'; rb.textContent = '관리자'; }
-  else { rb.className = ''; rb.textContent = ''; }
-  renderNav();
-  if (currentRole === 'admin') renderAdminDashboard();
-  else renderUserHome();
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app-screen').style.display='block';
+  document.getElementById('user-display').textContent=currentUserName;
+  const rb=document.getElementById('role-badge');
+  if(currentRole==='admin'){rb.className='admin-badge';rb.textContent='관리자'}else{rb.className='';rb.textContent=''}
+  renderNav();renderDashboard();
 }
 
-function renderNav() {
-  const nav = document.getElementById('main-nav');
-  if (currentRole === 'admin') {
-    nav.innerHTML = `
-      <button class="active" onclick="switchTab('dashboard', this)">대시보드</button>
-      <button onclick="switchTab('order', this)">발주 등록</button>
-      <button onclick="switchTab('receive', this)">입고 등록</button>
-      <button onclick="switchTab('history', this)">발주 이력</button>
-      <button onclick="switchTab('items', this)">품목/업체</button>
-      <button onclick="switchTab('recommend', this)">발주 필요</button>
-      <button onclick="switchTab('users', this)">사용자 관리</button>
-      <button onclick="switchTab('upload', this)">데이터 업로드</button>
-    `;
-  } else {
-    nav.innerHTML = `
-      <button class="active" onclick="switchTab('order', this)">발주 등록</button>
-      <button onclick="switchTab('receive', this)">입고 등록</button>
-      <button onclick="switchTab('history', this)">발주 이력</button>
-      <button onclick="switchTab('recommend', this)">발주 필요</button>
-    `;
+function renderNav(){
+  const nav=document.getElementById('main-nav');
+  if(currentRole==='admin'){
+    nav.innerHTML=`
+      <button class="active" onclick="switchTab('dashboard',this)">대시보드</button>
+      <button onclick="switchTab('items',this)">품목/업체</button>
+      <button onclick="switchTab('order',this)">발주 등록</button>
+      <button onclick="switchTab('receive',this)">입고 등록</button>
+      <button onclick="switchTab('history',this)">발주 이력</button>
+      <button onclick="switchTab('need',this)">발주 필요</button>
+      <button onclick="switchTab('users',this)">사용자 관리</button>
+      <button onclick="switchTab('upload',this)">데이터 업로드</button>`;
+  }else{
+    nav.innerHTML=`
+      <button class="active" onclick="switchTab('dashboard',this)">대시보드</button>
+      <button onclick="switchTab('order',this)">발주 등록</button>
+      <button onclick="switchTab('receive',this)">입고 등록</button>
+      <button onclick="switchTab('history',this)">발주 이력</button>
+      <button onclick="switchTab('need',this)">발주 필요</button>`;
   }
 }
 
-function renderMain(html) {
-  document.getElementById('main-content').innerHTML = html;
-}
+function renderMain(html){document.getElementById('main-content').innerHTML=html}
 
-function switchTab(id, btn) {
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+function switchTab(id,btn){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  if (id === 'dashboard') renderAdminDashboard();
-  else if (id === 'order') renderOrder();
-  else if (id === 'receive') renderReceive();
-  else if (id === 'history') renderHistory();
-  else if (id === 'items') renderItems();
-  else if (id === 'recommend') renderRecommend();
-  else if (id === 'users') renderUsers();
-  else if (id === 'upload') renderUpload();
+  if(id==='dashboard')renderDashboard();
+  else if(id==='items')renderItems();
+  else if(id==='order')renderOrder();
+  else if(id==='receive')renderReceive();
+  else if(id==='history')renderHistory();
+  else if(id==='need')renderNeed();
+  else if(id==='users')renderUsers();
+  else if(id==='upload')renderUpload();
 }
 
-function renderUserHome() { renderOrder(); }
-
-// ── 대시보드 (관리자) ──
-async function renderAdminDashboard() {
+// ── 대시보드 ──
+async function renderDashboard(){
   renderMain(`<div class="page-title">대시보드</div>
-    <div class="cards">
-      <div class="metric"><div class="metric-label">전체 품목</div><div class="metric-value" id="m-total">-</div></div>
-      <div class="metric"><div class="metric-label">재고 부족</div><div class="metric-value danger" id="m-low">-</div></div>
-      <div class="metric"><div class="metric-label">이번달 발주</div><div class="metric-value" id="m-month">-</div></div>
-      <div class="metric"><div class="metric-label">미입고 건수</div><div class="metric-value warn" id="m-pending">-</div></div>
-    </div>
-    <div class="card"><div class="card-title">재고 현황</div>
-      <table><thead><tr><th>품목명</th><th>업체</th><th>현재 재고</th><th>최소 기준</th><th>상태</th></tr></thead>
-      <tbody id="stock-table"><tr><td colspan="5" class="empty">로딩 중...</td></tr></tbody></table>
+    <div class="cards" id="dash-cards"><div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--muted)">로딩 중...</div></div>
+    <div class="card"><div class="card-title">📋 업무 중 발주 필요 목록</div>
+      <div id="dash-need-list"><div class="empty">로딩 중...</div></div>
     </div>`);
-  const [items, orders] = await Promise.all([api('items?select=*'), api('orders?select=*')]);
-  const low = items.filter(i => i.stock <= i.min_stock).length;
-  const now = new Date();
-  const monthOrders = orders.filter(o => { const d = new Date(o.order_date); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
-  const pending = orders.filter(o => o.status === '발주중').length;
-  document.getElementById('m-total').textContent = items.length;
-  document.getElementById('m-low').textContent = low;
-  document.getElementById('m-month').textContent = monthOrders;
-  document.getElementById('m-pending').textContent = pending;
-  document.getElementById('stock-table').innerHTML = items.length === 0
-    ? '<tr><td colspan="5" class="empty">품목을 먼저 등록해주세요</td></tr>'
-    : items.map(i => { const ok = i.stock > i.min_stock; return `<tr><td>${i.name}</td><td>${i.vendor}</td><td>${i.stock}${i.unit}</td><td>${i.min_stock}${i.unit}</td><td><span class="badge ${ok?'badge-ok':'badge-danger'}">${ok?'정상':'부족'}</span></td></tr>`; }).join('');
-}
+  const [items,orders]=await Promise.all([api('items?select=*'),api('orders?select=*')]);
+  const now=new Date();
+  const pending=orders.filter(o=>o.status==='발주중');
+  const monthAmt=orders.filter(o=>{const d=new Date(o.order_date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()}).reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
+  const needItems=items.filter(i=>i.need_order);
 
-// ── 발주 등록 ──
-async function renderOrder() {
-  const items = await api('items?select=*');
-  const opts = items.map(i => `<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}" data-category="${i.category||'소모품'}" data-subcategory="${i.sub_category||'기타'}">${i.name}</option>`).join('');
-  renderMain(`<div class="page-title">발주 요청 등록</div>
-    <div class="card">
-      <div class="form-row">
-        <div class="form-group"><label>품목 선택</label><select id="o-item" onchange="fillOrderVendor()"><option value="">선택하세요</option>${opts}</select></div>
-        <div class="form-group"><label>발주 업체</label><input id="o-vendor" readonly placeholder="품목 선택 시 자동입력"></div>
+  let cards='';
+  if(currentRole==='admin'){
+    cards=`
+      <div class="metric"><div class="metric-label">전체 품목</div><div class="metric-value accent">${items.length}</div></div>
+      <div class="metric"><div class="metric-label">발주중 품목</div><div class="metric-value warn">${pending.length}</div></div>
+      <div class="metric"><div class="metric-label">발주 필요 품목</div><div class="metric-value danger">${needItems.length}</div></div>
+      <div class="metric"><div class="metric-label">이번달 발주금액</div><div class="metric-value" style="font-size:18px">${monthAmt.toFixed(1)}만원</div></div>`;
+  }else{
+    const myPending=pending.filter(o=>o.created_by===currentUserName);
+    const myMonthAmt=orders.filter(o=>{const d=new Date(o.order_date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()&&o.created_by===currentUserName}).reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
+    cards=`
+      <div class="metric"><div class="metric-label">전체 품목</div><div class="metric-value accent">${items.length}</div></div>
+      <div class="metric"><div class="metric-label">발주중 품목</div><div class="metric-value warn">${pending.length}</div></div>
+      <div class="metric"><div class="metric-label">이번달 발주금액</div><div class="metric-value" style="font-size:18px">${myMonthAmt.toFixed(1)}만원</div></div>
+      <div class="metric"><div class="metric-label">미입고 건수</div><div class="metric-value danger">${myPending.length}</div></div>`;
+  }
+  document.getElementById('dash-cards').innerHTML=cards;
+
+  const needList=document.getElementById('dash-need-list');
+  if(needItems.length===0){needList.innerHTML='<div class="empty">발주 필요 품목이 없어요</div>';return}
+  needList.innerHTML=needItems.map(i=>`
+    <div class="need-item urgent">
+      <div>
+        <div class="need-name">${i.name} <span style="font-weight:400;color:var(--muted);font-size:12px">${i.vendor}</span></div>
+        <div class="need-detail">${i.category||''} / ${i.sub_category||''} ${i.memo?'· '+i.memo:''}</div>
       </div>
-      <div class="form-row three">
-        <div class="form-group"><label>대분류</label><select id="o-category">
-          <option value="소모품">소모품</option><option value="비품">비품</option>
-        </select></div>
-        <div class="form-group"><label>소분류</label><select id="o-subcategory">
-          <option value="기타">기타</option><option value="기계장비">기계장비</option>
-          <option value="수선비">수선비</option><option value="잉크/리본">잉크/리본</option>
-          <option value="와이퍼">와이퍼</option><option value="필터">필터</option>
-        </select></div>
-        <div class="form-group"><label>부서명</label><input id="o-department" placeholder="예: 고형제제조1팀"></div>
-      </div>
-      <div class="form-row three">
-        <div class="form-group"><label>발주 수량</label><input id="o-qty" type="number" min="1" placeholder="수량"></div>
-        <div class="form-group"><label>단위</label><input id="o-unit" readonly placeholder="자동입력"></div>
-        <div class="form-group"><label>금액 (만원)</label><input id="o-amount" type="number" step="0.1" placeholder="0.0"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>발주 예정일</label><input id="o-date" type="date" value="${today()}"></div>
-        <div class="form-group"><label>비고 (적요)</label><input id="o-note" placeholder="상세 내용 입력"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
-    </div>`);
-  window._orderItems = items;
+      <button class="btn btn-sm btn-primary" onclick="goOrder()">발주하기</button>
+    </div>`).join('');
 }
 
-function fillOrderVendor() {
-  const sel = document.getElementById('o-item');
-  const opt = sel.options[sel.selectedIndex];
-  document.getElementById('o-vendor').value = opt.dataset.vendor || '';
-  document.getElementById('o-unit').value = opt.dataset.unit || '';
-  if (opt.dataset.category) document.getElementById('o-category').value = opt.dataset.category;
-  if (opt.dataset.subcategory) document.getElementById('o-subcategory').value = opt.dataset.subcategory;
-}
+function goOrder(){document.querySelector('nav button:nth-child('+(currentRole==='admin'?3:2)+')').click()}
 
-async function addOrder() {
-  const item_id = parseInt(document.getElementById('o-item').value);
-  const qty = parseInt(document.getElementById('o-qty').value);
-  const order_date = document.getElementById('o-date').value;
-  const note = document.getElementById('o-note').value;
-  const category = document.getElementById('o-category').value;
-  const sub_category = document.getElementById('o-subcategory').value;
-  const department = document.getElementById('o-department').value;
-  const amount = parseFloat(document.getElementById('o-amount').value) || 0;
-  if (!item_id || !qty || qty < 1) { showToast('품목과 수량을 입력해주세요'); return; }
-  const item = (window._orderItems || []).find(i => i.id === item_id);
-  await api('orders', 'POST', { item_id, item_name: item.name, vendor: item.vendor, unit: item.unit, qty, order_date, note, status: '발주중', created_by: currentUserName, category, sub_category, department, amount });
-  showToast('발주가 등록되었어요!');
-  document.getElementById('o-qty').value = '';
-  document.getElementById('o-note').value = '';
-  document.getElementById('o-amount').value = '';
-}
-
-// ── 입고 등록 ──
-async function renderReceive() {
-  const orders = await api("orders?select=*&status=eq.발주중&order=created_at.desc");
-  const opts = orders.map(o => `<option value="${o.id}" data-item-id="${o.item_id}" data-unit="${o.unit}">[${o.order_date}] ${o.item_name} ${o.qty}${o.unit}</option>`).join('');
-  window._pendingOrders = orders;
-  renderMain(`<div class="page-title">입고 내역 등록</div>
-    <div class="card">
-      <div class="form-row">
-        <div class="form-group"><label>발주 건 선택</label><select id="r-order"><option value="">선택하세요</option>${opts}</select></div>
-        <div class="form-group"><label>입고일</label><input id="r-date" type="date" value="${today()}"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>입고 수량</label><input id="r-qty" type="number" min="1" placeholder="수량"></div>
-        <div class="form-group"><label>비고</label><input id="r-note" placeholder="메모 (선택)"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="addReceive()">입고 등록</button></div>
-    </div>`);
-}
-
-async function addReceive() {
-  const order_id = parseInt(document.getElementById('r-order').value);
-  const qty = parseInt(document.getElementById('r-qty').value);
-  const receive_date = document.getElementById('r-date').value;
-  const note = document.getElementById('r-note').value;
-  if (!order_id || !qty || qty < 1) { showToast('발주 건과 수량을 입력해주세요'); return; }
-  const order = (window._pendingOrders || []).find(o => o.id === order_id);
-  await api('receives', 'POST', { order_id, item_name: order.item_name, vendor: order.vendor, unit: order.unit, qty, receive_date, note, received_by: currentUserName });
-  await api(`orders?id=eq.${order_id}`, 'PATCH', { status: '입고완료' });
-  const cur = await api(`items?id=eq.${order.item_id}&select=stock`);
-  if (cur.length > 0) await api(`items?id=eq.${order.item_id}`, 'PATCH', { stock: cur[0].stock + qty });
-  showToast('입고가 등록되었어요!');
-  renderReceive();
-}
-
-// ── 발주 이력 ──
-async function renderHistory() {
-  renderMain(`<div class="page-title">발주 이력</div>
-    <div class="card">
-      <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap">
-        <select id="h-category" onchange="filterHistory()" style="font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
-          <option value="">전체 대분류</option>
-          <option value="소모품">소모품</option><option value="비품">비품</option>
-        </select>
-        <select id="h-subcategory" onchange="filterHistory()" style="font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
-          <option value="">전체 소분류</option>
-          <option value="기타">기타</option><option value="기계장비">기계장비</option>
-          <option value="수선비">수선비</option><option value="잉크/리본">잉크/리본</option>
-          <option value="와이퍼">와이퍼</option><option value="필터">필터</option>
-        </select>
-        <select id="h-department" onchange="filterHistory()" style="font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg)">
-          <option value="">전체 부서</option>
-        </select>
-      </div>
-      <table><thead><tr><th>발주일</th><th>대분류</th><th>소분류</th><th>품목 (적요)</th><th>업체</th><th>수량</th><th>금액(만원)</th><th>부서</th><th>등록자</th><th>상태</th></tr></thead>
-      <tbody id="history-table"><tr><td colspan="10" class="empty">로딩 중...</td></tr></tbody></table>
-      <div id="history-total" style="text-align:right;padding:10px 12px;font-size:13px;color:var(--text-muted);border-top:1px solid var(--border)"></div>
-    </div>`);
-  const orders = await api('orders?select=*&order=order_date.desc');
-  window._allOrders = orders;
-  const depts = [...new Set(orders.map(o => o.department).filter(Boolean))];
-  const deptSel = document.getElementById('h-department');
-  depts.forEach(d => { const opt = document.createElement('option'); opt.value = d; opt.textContent = d; deptSel.appendChild(opt); });
-  renderHistoryTable(orders);
-}
-
-function filterHistory() {
-  const cat = document.getElementById('h-category').value;
-  const sub = document.getElementById('h-subcategory').value;
-  const dept = document.getElementById('h-department').value;
-  let filtered = (window._allOrders || []);
-  if (cat) filtered = filtered.filter(o => o.category === cat);
-  if (sub) filtered = filtered.filter(o => o.sub_category === sub);
-  if (dept) filtered = filtered.filter(o => o.department === dept);
-  renderHistoryTable(filtered);
-}
-
-function renderHistoryTable(orders) {
-  const total = orders.reduce((sum, o) => sum + (parseFloat(o.amount) || 0), 0);
-  document.getElementById('history-table').innerHTML = orders.length === 0
-    ? '<tr><td colspan="10" class="empty">발주 이력이 없어요</td></tr>'
-    : orders.map(o => `<tr>
-        <td>${o.order_date}</td>
-        <td><span class="badge badge-info">${o.category||'-'}</span></td>
-        <td style="color:var(--text-muted)">${o.sub_category||'-'}</td>
-        <td>${o.item_name}${o.note?`<br><span style="font-size:11px;color:var(--text-muted)">${o.note}</span>`:''}</td>
-        <td>${o.vendor}</td>
-        <td>${o.qty}${o.unit}</td>
-        <td style="text-align:right">${o.amount?parseFloat(o.amount).toFixed(1):'-'}</td>
-        <td style="color:var(--text-muted)">${o.department||'-'}</td>
-        <td style="color:var(--text-muted)">${o.created_by||'-'}</td>
-        <td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-info'}">${o.status}</span></td>
-      </tr>`).join('');
-  document.getElementById('history-total').textContent = `총 ${orders.length}건 / 합계 금액: ${total.toFixed(1)}만원`;
-}
-
-// ── 품목/업체 관리 (관리자) ──
-async function renderItems() {
+// ── 품목/업체 관리 ──
+async function renderItems(){
   renderMain(`<div class="page-title">품목 / 업체 관리</div>
     <div class="card"><div class="card-title">새 품목 추가</div>
       <div class="form-row three">
-        <div class="form-group"><label>품목명</label><input id="i-name" placeholder="예: A4용지"></div>
-        <div class="form-group"><label>업체명</label><input id="i-vendor" placeholder="예: 문구나라"></div>
-        <div class="form-group"><label>단위</label><input id="i-unit" placeholder="예: 박스, 개, 롤"></div>
+        <div class="form-group"><label>품목명 *</label><input id="i-name" placeholder="예: A4용지"></div>
+        <div class="form-group"><label>업체명 *</label><input id="i-vendor" placeholder="예: 문구나라"></div>
+        <div class="form-group"><label>단위 *</label><input id="i-unit" placeholder="예: 박스, 개, 롤"></div>
       </div>
       <div class="form-row three">
         <div class="form-group"><label>대분류</label><select id="i-category">
           <option value="소모품">소모품</option><option value="비품">비품</option>
         </select></div>
-        <div class="form-group"><label>소분류</label><select id="i-subcategory">
-          <option value="기타">기타</option><option value="기계장비">기계장비</option>
-          <option value="수선비">수선비</option><option value="잉크/리본">잉크/리본</option>
-          <option value="와이퍼">와이퍼</option><option value="필터">필터</option>
+        <div class="form-group"><label>소분류 (직접 입력)</label><input id="i-subcategory" placeholder="예: 기타, 필터, 수선비"></div>
+        <div class="form-group"><label>발주 필요 여부</label><select id="i-need">
+          <option value="false">정상</option><option value="true">발주 필요</option>
         </select></div>
-        <div class="form-group"><label>현재 재고</label><input id="i-stock" type="number" min="0" placeholder="0"></div>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>최소 재고 (발주 기준)</label><input id="i-min" type="number" min="0" placeholder="0"></div>
-      </div>
+      <div class="form-group"><label>메모 (참고용)</label><textarea id="i-memo" placeholder="품목 관련 메모 입력 (관리자만 확인)"></textarea></div>
       <div class="btn-row"><button class="btn btn-primary" onclick="addItem()">품목 추가</button></div>
     </div>
-    <div class="card"><div class="card-title">등록된 품목</div>
-      <table><thead><tr><th>품목명</th><th>대분류</th><th>소분류</th><th>업체</th><th>단위</th><th>현재 재고</th><th>최소 재고</th><th>삭제</th></tr></thead>
+    <div class="card">
+      <div class="card-title">등록된 품목</div>
+      <div class="filter-bar">
+        <select id="if-cat" onchange="loadItemsTable()"><option value="">전체 대분류</option><option>소모품</option><option>비품</option></select>
+        <input id="if-search" placeholder="품목명 검색" oninput="loadItemsTable()" style="width:160px">
+      </div>
+      <table><thead><tr><th>품목명</th><th>대분류</th><th>소분류</th><th>업체</th><th>단위</th><th>발주필요</th><th>메모</th><th>삭제</th></tr></thead>
       <tbody id="items-table"><tr><td colspan="8" class="empty">로딩 중...</td></tr></tbody></table>
     </div>`);
   loadItemsTable();
 }
 
-async function loadItemsTable() {
-  const items = await api('items?select=*&order=created_at.desc');
-  document.getElementById('items-table').innerHTML = items.length === 0
-    ? '<tr><td colspan="8" class="empty">등록된 품목이 없어요</td></tr>'
-    : items.map(i => `<tr>
-        <td>${i.name}</td>
-        <td><span class="badge badge-info">${i.category||'소모품'}</span></td>
-        <td style="color:var(--text-muted)">${i.sub_category||'기타'}</td>
-        <td>${i.vendor}</td><td>${i.unit}</td><td>${i.stock}</td><td>${i.min_stock}</td>
-        <td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td>
-      </tr>`).join('');
+async function loadItemsTable(){
+  const cat=document.getElementById('if-cat')?.value||'';
+  const search=document.getElementById('if-search')?.value.toLowerCase()||'';
+  let q='items?select=*&order=name.asc';
+  if(cat)q+=`&category=eq.${cat}`;
+  const items=await api(q);
+  const filtered=search?items.filter(i=>i.name.toLowerCase().includes(search)):items;
+  document.getElementById('items-table').innerHTML=filtered.length===0
+    ?'<tr><td colspan="8" class="empty">등록된 품목이 없어요</td></tr>'
+    :filtered.map(i=>`<tr>
+      <td><strong>${i.name}</strong></td>
+      <td><span class="badge badge-info">${i.category||'소모품'}</span></td>
+      <td style="color:var(--muted)">${i.sub_category||'-'}</td>
+      <td>${i.vendor}</td><td>${i.unit}</td>
+      <td><span class="badge ${i.need_order?'badge-danger':'badge-ok'}">${i.need_order?'필요':'정상'}</span></td>
+      <td style="color:var(--muted);font-size:12px">${i.memo||'-'}</td>
+      <td><button class="btn btn-sm" onclick="deleteItem(${i.id})">삭제</button></td>
+    </tr>`).join('');
 }
 
-async function addItem() {
-  const name = document.getElementById('i-name').value.trim();
-  const vendor = document.getElementById('i-vendor').value.trim();
-  const unit = document.getElementById('i-unit').value.trim() || '개';
-  const stock = parseInt(document.getElementById('i-stock').value) || 0;
-  const min_stock = parseInt(document.getElementById('i-min').value) || 0;
-  const category = document.getElementById('i-category').value;
-  const sub_category = document.getElementById('i-subcategory').value;
-  if (!name || !vendor) { showToast('품목명과 업체명을 입력해주세요'); return; }
-  await api('items', 'POST', { name, vendor, unit, stock, min_stock, category, sub_category });
-  ['i-name','i-vendor','i-unit','i-stock','i-min'].forEach(id => document.getElementById(id).value = '');
-  showToast('품목이 추가되었어요!'); loadItemsTable();
+async function addItem(){
+  const name=document.getElementById('i-name').value.trim();
+  const vendor=document.getElementById('i-vendor').value.trim();
+  const unit=document.getElementById('i-unit').value.trim()||'개';
+  const category=document.getElementById('i-category').value;
+  const sub_category=document.getElementById('i-subcategory').value.trim();
+  const need_order=document.getElementById('i-need').value==='true';
+  const memo=document.getElementById('i-memo').value.trim();
+  if(!name||!vendor){showToast('품목명과 업체명을 입력해주세요');return}
+  await api('items','POST',{name,vendor,unit,category,sub_category,need_order,memo,stock:0,min_stock:0});
+  ['i-name','i-vendor','i-unit','i-subcategory','i-memo'].forEach(id=>document.getElementById(id).value='');
+  showToast('품목이 추가되었어요!');loadItemsTable();
 }
 
-async function deleteItem(id) {
-  if (!confirm('정말 삭제할까요?')) return;
-  await api(`items?id=eq.${id}`, 'DELETE');
-  showToast('삭제되었어요'); loadItemsTable();
+async function deleteItem(id){
+  if(!confirm('정말 삭제할까요?'))return;
+  await api(`items?id=eq.${id}`,'DELETE');
+  showToast('삭제되었어요');loadItemsTable();
+}
+
+// ── 발주 등록 ──
+async function renderOrder(){
+  const items=await api('items?select=*&order=name.asc');
+  const opts=items.map(i=>`<option value="${i.id}" data-vendor="${i.vendor}" data-unit="${i.unit}" data-cat="${i.category||''}" data-sub="${i.sub_category||''}">${i.name} (${i.vendor})</option>`).join('');
+  window._orderItems=items;
+  renderMain(`<div class="page-title">발주 등록</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>품목 선택 *</label><select id="o-item" onchange="fillOrder()"><option value="">선택하세요</option>${opts}</select></div>
+        <div class="form-group"><label>규격 (선택)</label><input id="o-spec" placeholder="예: A4, 100mm, EU-B 등"></div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group"><label>대분류</label><input id="o-category" readonly></div>
+        <div class="form-group"><label>소분류</label><input id="o-subcategory" readonly></div>
+        <div class="form-group"><label>거래처</label><input id="o-vendor" readonly></div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group"><label>부서명 *</label><select id="o-dept"><option value="">선택하세요</option>${DEPT_OPTS}</select></div>
+        <div class="form-group"><label>발주 수량 *</label><input id="o-qty" type="number" min="1" placeholder="수량"></div>
+        <div class="form-group"><label>단위</label><input id="o-unit" readonly placeholder="자동입력"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>발주 예정일 *</label><input id="o-date" type="date" value="${today()}"></div>
+        <div class="form-group"><label>비고 (적요)</label><input id="o-note" placeholder="상세 내용 입력"></div>
+      </div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
+    </div>`);
+}
+
+function fillOrder(){
+  const sel=document.getElementById('o-item');
+  const opt=sel.options[sel.selectedIndex];
+  document.getElementById('o-vendor').value=opt.dataset.vendor||'';
+  document.getElementById('o-unit').value=opt.dataset.unit||'';
+  document.getElementById('o-category').value=opt.dataset.cat||'';
+  document.getElementById('o-subcategory').value=opt.dataset.sub||'';
+}
+
+async function addOrder(){
+  const item_id=parseInt(document.getElementById('o-item').value);
+  const qty=parseInt(document.getElementById('o-qty').value);
+  const order_date=document.getElementById('o-date').value;
+  const dept=document.getElementById('o-dept').value;
+  if(!item_id||!qty||!dept){showToast('품목, 부서, 수량을 입력해주세요');return}
+  const item=(window._orderItems||[]).find(i=>i.id===item_id);
+  const spec=document.getElementById('o-spec').value.trim();
+  const note=document.getElementById('o-note').value.trim();
+  const category=document.getElementById('o-category').value;
+  const sub_category=document.getElementById('o-subcategory').value;
+  await api('orders','POST',{
+    item_id,item_name:item.name,vendor:item.vendor,unit:item.unit,
+    qty,order_date,note,status:'발주중',created_by:currentUserName,
+    category,sub_category,department:dept,spec,amount:0
+  });
+  showToast('발주가 등록되었어요!');
+  document.getElementById('o-qty').value='';
+  document.getElementById('o-note').value='';
+  document.getElementById('o-spec').value='';
+}
+
+// ── 입고 등록 ──
+async function renderReceive(){
+  renderMain(`<div class="page-title">입고 등록</div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group"><label>팀 선택 *</label><select id="r-dept" onchange="loadPendingByDept()"><option value="">팀을 선택하세요</option>${DEPT_OPTS}</select></div>
+        <div class="form-group"><label>발주 건 선택 *</label><select id="r-order"><option value="">팀 선택 후 선택하세요</option></select></div>
+      </div>
+      <div id="r-info" style="display:none">
+        <div class="form-row three">
+          <div class="form-group"><label>품목명</label><input id="r-itemname" readonly></div>
+          <div class="form-group"><label>규격</label><input id="r-spec" readonly></div>
+          <div class="form-group"><label>발주 수량</label><input id="r-orderqty" readonly></div>
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group"><label>입고일 *</label><input id="r-date" type="date" value="${today()}"></div>
+        <div class="form-group"><label>입고 수량 *</label><input id="r-qty" type="number" min="1" placeholder="수량"></div>
+        <div class="form-group"><label>입고 금액 (만원) *</label><input id="r-amount" type="number" step="0.1" placeholder="0.0"></div>
+      </div>
+      <div class="form-group"><label>비고</label><input id="r-note" placeholder="메모 (선택)"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="addReceive()">입고 등록</button></div>
+    </div>`);
+}
+
+async function loadPendingByDept(){
+  const dept=document.getElementById('r-dept').value;
+  if(!dept)return;
+  const orders=await api(`orders?select=*&status=eq.발주중&department=eq.${encodeURIComponent(dept)}&order=order_date.desc`);
+  window._pendingOrders=orders;
+  const sel=document.getElementById('r-order');
+  sel.innerHTML=orders.length===0
+    ?'<option value="">발주 중인 건이 없어요</option>'
+    :'<option value="">선택하세요</option>'+orders.map(o=>`<option value="${o.id}">[${o.order_date}] ${o.item_name}${o.spec?' ('+o.spec+')':''} ${o.qty}${o.unit}</option>`).join('');
+  sel.onchange=()=>{
+    const o=(window._pendingOrders||[]).find(x=>x.id===parseInt(sel.value));
+    if(!o){document.getElementById('r-info').style.display='none';return}
+    document.getElementById('r-info').style.display='block';
+    document.getElementById('r-itemname').value=o.item_name;
+    document.getElementById('r-spec').value=o.spec||'-';
+    document.getElementById('r-orderqty').value=o.qty+o.unit;
+    document.getElementById('r-qty').value=o.qty;
+  };
+}
+
+async function addReceive(){
+  const order_id=parseInt(document.getElementById('r-order').value);
+  const qty=parseInt(document.getElementById('r-qty').value);
+  const amount=parseFloat(document.getElementById('r-amount').value)||0;
+  const receive_date=document.getElementById('r-date').value;
+  const note=document.getElementById('r-note').value;
+  if(!order_id||!qty){showToast('발주 건과 수량을 입력해주세요');return}
+  if(!amount){showToast('입고 금액을 입력해주세요');return}
+  const order=(window._pendingOrders||[]).find(o=>o.id===order_id);
+  await api(`orders?id=eq.${order_id}`,'PATCH',{status:'입고완료',amount,receive_date,receive_qty:qty,received_by:currentUserName});
+  await api('receives','POST',{order_id,item_name:order.item_name,vendor:order.vendor,unit:order.unit,qty,receive_date,note,received_by:currentUserName,amount});
+  showToast('입고가 등록되었어요!');renderReceive();
+}
+
+// ── 발주 이력 ──
+async function renderHistory(){
+  renderMain(`<div class="page-title">발주 이력</div>
+    <div class="card">
+      <div class="filter-bar">
+        <select id="h-cat" onchange="filterHistory()"><option value="">전체 대분류</option><option>소모품</option><option>비품</option></select>
+        <select id="h-dept" onchange="filterHistory()"><option value="">전체 부서</option>${DEPT_OPTS}</select>
+        <select id="h-status" onchange="filterHistory()"><option value="">전체 상태</option><option value="발주중">발주중</option><option value="입고완료">입고완료</option></select>
+        <input id="h-search" placeholder="품목명 검색" oninput="filterHistory()" style="width:140px">
+      </div>
+      <table><thead><tr><th>발주일</th><th>대분류</th><th>소분류</th><th>품목명</th><th>규격</th><th>업체</th><th>부서</th><th>수량</th><th>입고금액</th><th>등록자</th><th>상태</th></tr></thead>
+      <tbody id="history-table"><tr><td colspan="11" class="empty">로딩 중...</td></tr></tbody></table>
+      <div id="history-total" style="text-align:right;padding:10px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
+    </div>`);
+  const orders=await api('orders?select=*&order=order_date.desc');
+  window._allOrders=orders;
+  renderHistoryTable(orders);
+}
+
+function filterHistory(){
+  const cat=document.getElementById('h-cat').value;
+  const dept=document.getElementById('h-dept').value;
+  const status=document.getElementById('h-status').value;
+  const search=document.getElementById('h-search').value.toLowerCase();
+  let f=window._allOrders||[];
+  if(cat)f=f.filter(o=>o.category===cat);
+  if(dept)f=f.filter(o=>o.department===dept);
+  if(status)f=f.filter(o=>o.status===status);
+  if(search)f=f.filter(o=>o.item_name.toLowerCase().includes(search));
+  renderHistoryTable(f);
+}
+
+function renderHistoryTable(orders){
+  const total=orders.filter(o=>o.status==='입고완료').reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
+  document.getElementById('history-table').innerHTML=orders.length===0
+    ?'<tr><td colspan="11" class="empty">이력이 없어요</td></tr>'
+    :orders.map(o=>`<tr>
+      <td>${o.order_date}</td>
+      <td><span class="badge badge-info">${o.category||'-'}</span></td>
+      <td style="color:var(--muted)">${o.sub_category||'-'}</td>
+      <td>${o.item_name}${o.note?`<br><span style="font-size:11px;color:var(--muted)">${o.note}</span>`:''}</td>
+      <td style="color:var(--muted)">${o.spec||'-'}</td>
+      <td>${o.vendor}</td>
+      <td style="color:var(--muted)">${o.department||'-'}</td>
+      <td>${o.qty}${o.unit}</td>
+      <td style="text-align:right">${o.amount?parseFloat(o.amount).toFixed(1)+'만원':'-'}</td>
+      <td style="color:var(--muted)">${o.created_by||'-'}</td>
+      <td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-warn'}">${o.status}</span></td>
+    </tr>`).join('');
+  document.getElementById('history-total').textContent=`총 ${orders.length}건 / 입고완료 금액 합계: ${total.toFixed(1)}만원`;
 }
 
 // ── 발주 필요 ──
-async function renderRecommend() {
-  renderMain(`<div class="page-title">발주 필요</div><div id="rec-list"><p style="color:#888;font-size:14px">로딩 중...</p></div>`);
-  const [items, orders] = await Promise.all([api('items?select=*'), api('orders?select=*&status=eq.입고완료')]);
-  const list = document.getElementById('rec-list');
-  if (items.length === 0) { list.innerHTML = '<p style="color:#888;font-size:14px">품목을 먼저 등록하면 발주 필요 목록이 표시돼요.</p>'; return; }
-  list.innerHTML = items.map(item => {
-    const urgent = item.stock <= item.min_stock;
-    const itemOrders = orders.filter(o => o.item_id === item.id);
-    let cycleText = '발주 이력이 쌓이면 주기를 알려드려요';
-    if (itemOrders.length >= 2) {
-      const dates = itemOrders.map(o => new Date(o.order_date)).sort((a,b) => a-b);
-      const gaps = []; for (let i = 1; i < dates.length; i++) gaps.push((dates[i]-dates[i-1])/(1000*60*60*24));
-      cycleText = `평균 발주 주기: 약 ${Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length)}일`;
-    }
-    return `<div class="rec-item ${urgent?'urgent':''}">
+async function renderNeed(){
+  renderMain(`<div class="page-title">발주 필요</div>
+    <div class="card" style="background:var(--accent-light);border-color:#c7d8f0">
+      <p style="font-size:13px;color:var(--accent)">💡 발주 패턴이 쌓이면 자동 추천 기능이 추가될 예정이에요. 현재는 품목/업체 관리에서 수동으로 "발주 필요" 표시를 할 수 있어요.</p>
+    </div>
+    <div id="need-list"><div class="empty">로딩 중...</div></div>`);
+  const items=await api('items?select=*&need_order=eq.true&order=name.asc');
+  const list=document.getElementById('need-list');
+  if(items.length===0){list.innerHTML='<div class="empty">발주 필요 품목이 없어요 😊</div>';return}
+  list.innerHTML=items.map(i=>`
+    <div class="need-item urgent">
       <div>
-        <div class="rec-name">${item.name} <span style="font-weight:400;color:#888;font-size:12px">${item.vendor}</span></div>
-        <div class="rec-detail">현재 재고 ${item.stock}${item.unit} / 최소 기준 ${item.min_stock}${item.unit}</div>
-        <div class="rec-detail">${cycleText}</div>
+        <div class="need-name">${i.name} <span style="font-weight:400;color:var(--muted);font-size:12px">${i.vendor}</span></div>
+        <div class="need-detail"><span class="badge badge-info">${i.category||'소모품'}</span> ${i.sub_category||''} · 단위: ${i.unit}</div>
+        ${i.memo?`<div class="need-detail">📝 ${i.memo}</div>`:''}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-        <span class="badge ${urgent?'badge-danger':'badge-ok'}">${urgent?'발주 필요':'재고 양호'}</span>
-        ${urgent?`<button class="btn btn-sm" onclick="goToOrder()">발주하기</button>`:''}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="badge badge-danger">발주 필요</span>
+        <button class="btn btn-sm btn-primary" onclick="goOrder()">발주하기</button>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 
-function goToOrder() {
-  const btns = document.querySelectorAll('nav button');
-  btns.forEach(b => { if (b.textContent === '발주 등록') b.click(); });
-}
-
-// ── 사용자 관리 (관리자) ──
-async function renderUsers() {
+// ── 사용자 관리 ──
+async function renderUsers(){
   renderMain(`<div class="page-title">사용자 관리</div>
     <div class="card">
       <table><thead><tr><th>이름</th><th>권한</th><th>가입일</th><th>권한 변경</th></tr></thead>
       <tbody id="users-table"><tr><td colspan="4" class="empty">로딩 중...</td></tr></tbody></table>
     </div>`);
-  loadUsersTable();
+  const profiles=await api('profiles?select=*&order=created_at.asc');
+  document.getElementById('users-table').innerHTML=profiles.length===0
+    ?'<tr><td colspan="4" class="empty">사용자가 없어요</td></tr>'
+    :profiles.map(p=>{
+      const isAdmin=p.role==='admin';const isSelf=p.id===currentUserId;
+      return`<tr>
+        <td>${p.name||'(이름 없음)'}</td>
+        <td><span class="badge ${isAdmin?'badge-admin':'badge-user'}">${isAdmin?'관리자':'사용자'}</span></td>
+        <td style="color:var(--muted)">${p.created_at?p.created_at.split('T')[0]:'-'}</td>
+        <td>${isSelf?'<span style="color:var(--muted);font-size:12px">본인</span>':`<button class="btn btn-sm ${isAdmin?'btn-danger':''}" onclick="toggleRole('${p.id}','${p.role}')">${isAdmin?'사용자로 변경':'관리자로 변경'}</button>`}</td>
+      </tr>`;}).join('');
 }
 
-async function loadUsersTable() {
-  const profiles = await api('profiles?select=*&order=created_at.asc');
-  document.getElementById('users-table').innerHTML = profiles.length === 0
-    ? '<tr><td colspan="4" class="empty">사용자가 없어요</td></tr>'
-    : profiles.map(p => {
-        const isAdmin = p.role === 'admin';
-        const isSelf = p.id === currentUserId;
-        return `<tr>
-          <td>${p.name || '(이름 없음)'}</td>
-          <td><span class="badge ${isAdmin?'badge-admin':'badge-user'}">${isAdmin?'관리자':'사용자'}</span></td>
-          <td style="color:var(--text-muted)">${p.created_at ? p.created_at.split('T')[0] : '-'}</td>
-          <td>${isSelf ? '<span style="color:var(--text-muted);font-size:12px">본인</span>' :
-            `<button class="btn btn-sm ${isAdmin?'btn-danger':''}" onclick="toggleRole('${p.id}','${p.role}')">${isAdmin?'사용자로 변경':'관리자로 변경'}</button>`
-          }</td>
-        </tr>`;
-      }).join('');
+async function toggleRole(id,role){
+  const newRole=role==='admin'?'user':'admin';
+  if(!confirm(`${newRole==='admin'?'관리자':'사용자'}로 변경할까요?`))return;
+  await api(`profiles?id=eq.${id}`,'PATCH',{role:newRole});
+  showToast('권한이 변경되었어요!');renderUsers();
 }
 
-// ── 데이터 업로드 (관리자) ──
-function renderUpload() {
+// ── 데이터 업로드 ──
+function renderUpload(){
   renderMain(`<div class="page-title">데이터 업로드</div>
-    <div class="card">
-      <div class="card-title">📥 템플릿 다운로드</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">아래 버튼으로 템플릿을 받아서 데이터를 입력한 후 업로드해주세요.</p>
-      <a href="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit" target="_blank" style="display:none"></a>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-primary" onclick="downloadTemplate()">📄 엑셀 템플릿 받기</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">📦 품목/업체 업로드</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">템플릿의 <strong>품목_업체</strong> 시트를 CSV로 저장 후 업로드해주세요.</p>
-      <input type="file" id="items-file" accept=".csv" style="font-size:13px;margin-bottom:12px">
-      <div id="items-preview" style="margin-bottom:12px"></div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="uploadItems()">품목 업로드</button></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">📋 발주이력 업로드</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem">템플릿의 <strong>발주이력</strong> 시트를 CSV로 저장 후 업로드해주세요.</p>
-      <input type="file" id="orders-file" accept=".csv" style="font-size:13px;margin-bottom:12px">
-      <div id="orders-preview" style="margin-bottom:12px"></div>
-      <div class="btn-row"><button class="btn btn-primary" onclick="uploadOrders()">발주이력 업로드</button></div>
-    </div>
-
-    <div class="card" style="background:var(--accent-light);border-color:#bfdbfe">
-      <div class="card-title" style="color:var(--accent)">💡 CSV 저장 방법</div>
+    <div class="card" style="background:var(--accent-light);border-color:#c7d8f0">
+      <div class="card-title" style="color:var(--accent)">💡 업로드 안내</div>
       <p style="font-size:13px;color:#1e40af;line-height:1.8">
-        1. 엑셀에서 해당 시트 열기<br>
-        2. 예시 행 삭제 후 실제 데이터 입력<br>
-        3. <strong>파일 → 다른 이름으로 저장 → CSV (쉼표로 분리)</strong> 선택<br>
-        4. 위 업로드 버튼으로 파일 선택
+        발주이력 CSV 파일을 업로드하면 자동으로 품목/업체 정보도 함께 등록됩니다.<br>
+        컬럼 순서: <strong>입고일, 대분류, 소분류, 적요(품목명), 수량, 금액합, 거래처(업체명), 부서명</strong>
       </p>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 발주이력 + 품목 일괄 업로드</div>
+      <input type="file" id="upload-file" accept=".csv" style="font-size:13px;margin-bottom:12px">
+      <div id="upload-preview" style="margin-bottom:12px"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="doUpload()">업로드 시작</button></div>
     </div>`);
-
-  document.getElementById('items-file').addEventListener('change', e => previewCSV(e, 'items-preview'));
-  document.getElementById('orders-file').addEventListener('change', e => previewCSV(e, 'orders-preview'));
+  document.getElementById('upload-file').addEventListener('change',previewUpload);
 }
 
-function downloadTemplate() {
-  showToast('템플릿은 로디가 별도로 드린 파일을 사용해주세요!');
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split(/\r?\n/);
-  const headers = parseCSVLine(lines[0]);
-  return lines.slice(1).filter(l => l.trim()).map(line => {
-    const vals = parseCSVLine(line);
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim());
-    return obj;
+function parseCSV(text){
+  const lines=text.trim().split(/\r?\n/);
+  const headers=parseCSVLine(lines[0]);
+  return lines.slice(1).filter(l=>l.trim()).map(line=>{
+    const vals=parseCSVLine(line);
+    const obj={};headers.forEach((h,i)=>obj[h]=(vals[i]||'').trim());return obj;
   });
 }
+function parseCSVLine(line){
+  const result=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++}else inQ=!inQ}
+    else if(ch===','&&!inQ){result.push(cur);cur=''}
+    else cur+=ch;
+  }
+  result.push(cur);return result;
+}
 
-function parseCSVLine(line) {
-  const result = [];
-  let cur = '';
-  let inQuote = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuote && line[i+1] === '"') { cur += '"'; i++; }
-      else inQuote = !inQuote;
-    } else if (ch === ',' && !inQuote) {
-      result.push(cur); cur = '';
-    } else {
-      cur += ch;
+async function previewUpload(e){
+  const file=e.target.files[0];if(!file)return;
+  const tryRead=(enc)=>new Promise(res=>{const r=new FileReader();r.onload=ev=>res(ev.target.result);r.readAsText(file,enc)});
+  let text=await tryRead('UTF-8');
+  if(/[\uFFFD]/.test(text)||text.includes('â€'))text=await tryRead('EUC-KR');
+  window._uploadCSV=text;
+  const rows=parseCSV(text);
+  const preview=document.getElementById('upload-preview');
+  if(rows.length===0){preview.innerHTML='<p style="color:var(--danger)">데이터가 없어요</p>';return}
+  const keys=Object.keys(rows[0]);
+  preview.innerHTML=`<p style="font-size:12px;color:var(--muted);margin-bottom:6px">${rows.length}개 행 미리보기 (처음 3개):</p>
+    <div style="overflow-x:auto"><table style="font-size:12px">
+      <thead><tr>${keys.map(k=>`<th style="padding:5px 8px;border-bottom:1px solid var(--border);color:var(--muted)">${k}</th>`).join('')}</tr></thead>
+      <tbody>${rows.slice(0,3).map(r=>`<tr>${keys.map(k=>`<td style="padding:5px 8px;border-bottom:1px solid var(--border)">${r[k]||'-'}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table></div>`;
+}
+
+async function doUpload(){
+  const text=window._uploadCSV;
+  if(!text){showToast('파일을 먼저 선택해주세요');return}
+  const rows=parseCSV(text);
+  if(rows.length===0){showToast('데이터가 없어요');return}
+
+  let orderOk=0,orderFail=0,itemOk=0;
+  const existingItems=await api('items?select=*');
+  const itemMap=new Map(existingItems.map(i=>[i.name+'|'+i.vendor,i]));
+  const newItems=new Map();
+  let firstErr='';
+
+  for(const row of rows){
+    const item_name=row['적요']||row['품목명']||'';
+    const vendor=row['거래처']||row['업체명']||'';
+    const category=row['대분류']||'소모품';
+    const sub_category=row['소분류']||'기타';
+    const qty=parseInt(row['수량'])||1;
+    const amount=parseFloat(row['금액합']||row['금액']||0)||0;
+    const department=row['부서명']||'';
+    const order_date=row['입고일']||row['발주일자']||today();
+    const status=row['상태']||'입고완료';
+    const note=row['비고']||'';
+    const unit=row['단위']||'개';
+    if(!item_name||!vendor){orderFail++;continue}
+
+    const key=item_name+'|'+vendor;
+    if(!itemMap.has(key)&&!newItems.has(key)){
+      try{
+        const newItem=await api('items','POST',{name:item_name,vendor,unit,category,sub_category,stock:0,min_stock:0,need_order:false});
+        if(newItem&&newItem[0])itemMap.set(key,newItem[0]);
+        newItems.set(key,true);itemOk++;
+      }catch(e){if(!firstErr)firstErr=e.message}
     }
-  }
-  result.push(cur);
-  return result;
-}
-
-function previewCSV(e, previewId) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const tryRead = (encoding) => new Promise(res => {
-    const r = new FileReader();
-    r.onload = ev => res(ev.target.result);
-    r.readAsText(file, encoding);
-  });
-  (async () => {
-    let text = await tryRead('UTF-8');
-    if (text.includes('â€') || text.includes('ï¿½') || /[\uFFFD]/.test(text)) {
-      text = await tryRead('EUC-KR');
-    }
-    if (previewId === 'items-preview') window._itemsCSV = text;
-    if (previewId === 'orders-preview') window._ordersCSV = text;
-    const rows = parseCSV(text);
-    const preview = document.getElementById(previewId);
-    if (rows.length === 0) { preview.innerHTML = '<p style="color:var(--danger);font-size:13px">데이터가 없어요</p>'; return; }
-    const keys = Object.keys(rows[0]);
-    preview.innerHTML = `<p style="font-size:12px;color:var(--text-muted);margin-bottom:6px">${rows.length}개 행 미리보기:</p>
-      <div style="overflow-x:auto"><table style="font-size:12px">
-        <thead><tr>${keys.map(k=>`<th style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text-muted)">${k}</th>`).join('')}</tr></thead>
-        <tbody>${rows.slice(0,3).map(r=>`<tr>${keys.map(k=>`<td style="padding:5px 10px;border-bottom:1px solid var(--border)">${r[k]||'-'}</td>`).join('')}</tr>`).join('')}</tbody>
-      </table></div>`;
-  })();
-}
-
-async function uploadItems() {
-  const text = window._itemsCSV;
-  if (!text) { showToast('파일을 먼저 선택해주세요'); return; }
-  const rows = parseCSV(text);
-  if (rows.length === 0) { showToast('데이터가 없어요'); return; }
-  let success = 0, fail = 0;
-  for (const row of rows) {
-    const name = row['품목명*'] || row['품목명'];
-    const vendor = row['업체명*'] || row['업체명'];
-    const unit = row['단위*'] || row['단위'] || '개';
-    const stock = parseInt(row['현재재고']) || 0;
-    const min_stock = parseInt(row['최소재고(발주기준)'] || row['최소재고']) || 0;
-    if (!name || !vendor) { fail++; continue; }
-    try {
-      await api('items', 'POST', { name, vendor, unit, stock, min_stock });
-      success++;
-    } catch { fail++; }
-  }
-  showToast(`✅ ${success}개 등록 완료${fail>0?' / ❌ '+fail+'개 실패':''}`);
-}
-
-async function readFileWithEncoding(file) {
-  const tryRead = (enc) => new Promise(res => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result);
-    r.readAsText(file, enc);
-  });
-  let text = await tryRead('UTF-8');
-  if (text.includes('â€') || text.includes('ï¿½') || /[\uFFFD]/.test(text)) {
-    text = await tryRead('EUC-KR');
-  }
-  return text;
-}
-
-async function uploadOrders() {
-  const text = window._ordersCSV;
-  if (!text) { showToast('파일을 먼저 선택해주세요'); return; }
-  const rows = parseCSV(text);
-  if (rows.length === 0) { showToast('데이터가 없어요'); return; }
-  const items = await api('items?select=*');
-  let success = 0, fail = 0;
-  for (const row of rows) {
-    // 기존 Power BI 양식 지원: 입고일, 대분류, 소분류, 적요, 수량, 금액합, 거래처, 부서명
-    const item_name = row['적요'] || row['품목명*'] || row['품목명'] || '';
-    const vendor = row['거래처'] || row['업체명*'] || row['업체명'] || '';
-    const category = row['대분류'] || row['category'] || '소모품';
-    const sub_category = row['소분류'] || row['sub_category'] || '기타';
-    const qty = parseInt(row['수량'] || row['발주수량*'] || row['발주수량']) || 0;
-    const amount = parseFloat(row['금액합'] || row['금액'] || row['amount']) || 0;
-    const department = row['부서명'] || row['department'] || '';
-    const order_date = row['입고일'] || row['발주일자'] || today();
-    const status = row['상태'] || '입고완료';
-    const note = row['비고'] || '';
-    const unit = row['단위'] || '개';
-    if (!item_name || !vendor) { fail++; continue; }
-    const matched = items.find(i => i.name === item_name);
-    try {
-      await api('orders', 'POST', {
-        item_id: matched?.id || null,
-        item_name, vendor, unit, qty, order_date,
-        note, status, created_by: '일괄업로드',
-        category, sub_category, department, amount
+    const matched=itemMap.get(key);
+    try{
+      await api('orders','POST',{
+        item_id:matched?.id||null,item_name,vendor,unit,qty,order_date,
+        note,status,created_by:'일괄업로드',
+        category,sub_category,department,amount
       });
-      success++;
-    } catch { fail++; }
+      orderOk++;
+    }catch(e){orderFail++;if(!firstErr)firstErr=e.message}
   }
-  showToast(`✅ ${success}개 등록 완료${fail>0?' / ❌ '+fail+'개 실패':''}`);
-}
 
-async function toggleRole(id, currentRoleVal) {
-  const newRole = currentRoleVal === 'admin' ? 'user' : 'admin';
-  const label = newRole === 'admin' ? '관리자' : '일반 사용자';
-  if (!confirm(`${label}로 변경할까요?`)) return;
-  await api(`profiles?id=eq.${id}`, 'PATCH', { role: newRole });
-  showToast('권한이 변경되었어요!');
-  loadUsersTable();
+  if(firstErr)alert('오류 상세:\n'+firstErr);
+  showToast(`✅ 발주이력 ${orderOk}건 / 신규품목 ${itemOk}개 등록${orderFail>0?' / ❌ '+orderFail+'건 실패':''}`);
 }
 </script>
 </body>
