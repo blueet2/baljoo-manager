@@ -542,6 +542,16 @@ async function renderOrder(){
     el_from.value=new Date(now3.getFullYear(),now3.getMonth()-1,1).toISOString().split('T')[0].substring(0,7);
   }
   if(el_to&&!el_to.value){el_to.value=now3.toISOString().split('T')[0].substring(0,7);}
+  // 기능5: 사용자 부서 기본 선택
+  if(currentUserDept&&currentRole!=='admin'){
+    const deptSel=document.getElementById('ol-dept');
+    if(deptSel)deptSel.value=currentUserDept;
+  }
+  // 발주 폼 부서도 기본 선택
+  if(currentUserDept){
+    const oDept=document.getElementById('o-dept');
+    if(oDept)oDept.value=currentUserDept;
+  }
   loadOrderHistory();
 }
 
@@ -673,8 +683,8 @@ async function renderReceive(){
         <span style="align-self:center;color:var(--muted)">~</span>
         <input type="month" id="rl-to" onchange="loadReceiveHistory()">
       </div>
-      <table><thead><tr><th>입고일</th><th>품목명</th><th>업체</th><th>수량</th><th>금액</th><th>처리자</th></tr></thead>
-      <tbody id="receive-history-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
+      <table><thead><tr><th>입고일</th><th>품목명</th><th>업체</th><th>수량</th><th>금액</th><th>처리자</th><th>취소</th></tr></thead>
+      <tbody id="receive-history-table"><tr><td colspan="7" class="empty">로딩 중...</td></tr></tbody></table>
       <div id="receive-history-total" style="text-align:right;padding:8px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
     </div>`);
   // 최근 2달 기본값 설정
@@ -682,6 +692,11 @@ async function renderReceive(){
   const twoAgo=new Date(now2.getFullYear(),now2.getMonth()-1,1);
   document.getElementById('rl-from').value=twoAgo.toISOString().split('T')[0].substring(0,7);
   document.getElementById('rl-to').value=now2.toISOString().split('T')[0].substring(0,7);
+  // 기능5: 사용자 부서 기본 선택
+  if(currentUserDept){
+    const rDept=document.getElementById('r-dept');
+    if(rDept){rDept.value=currentUserDept;loadPendingByDept();}
+  }
   loadReceiveHistory();
 }
 
@@ -728,10 +743,8 @@ async function loadReceiveHistory(){
   let receives=[];
   try{
     receives=await api(q);
-    console.log('입고이력 조회:', q, '결과:', receives.length+'건');
   }catch(e){
-    console.error('입고이력 조회 오류:', e);
-    document.getElementById('receive-history-table').innerHTML='<tr><td colspan="6" class="empty">조회 오류: '+e.message+'</td></tr>';
+    document.getElementById('receive-history-table').innerHTML='<tr><td colspan="7" class="empty">조회 오류: '+e.message+'</td></tr>';
     return;
   }
   const tb=document.getElementById('receive-history-table');
@@ -739,7 +752,7 @@ async function loadReceiveHistory(){
   if(!tb)return;
   const totalAmt=receives.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   tb.innerHTML=receives.length===0
-    ?'<tr><td colspan="6" class="empty">입고 이력이 없어요</td></tr>'
+    ?'<tr><td colspan="7" class="empty">입고 이력이 없어요</td></tr>'
     :receives.map(r=>`<tr>
       <td>${r.receive_date||'-'}</td>
       <td>${r.item_name}</td>
@@ -747,48 +760,76 @@ async function loadReceiveHistory(){
       <td>${r.qty}${r.unit}</td>
       <td style="text-align:right">${r.amount?parseFloat(r.amount).toFixed(1)+'만원':'-'}</td>
       <td style="color:var(--muted)">${r.received_by||'-'}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="cancelReceive(${r.id},${r.order_id})">🔄 취소</button></td>
     </tr>`).join('');
   if(tot)tot.textContent=`총 ${receives.length}건 / 합계: ${totalAmt.toFixed(1)}만원`;
 }
 
+// 기능3: 입고 처리 취소
+async function cancelReceive(receiveId, orderId){
+  if(!confirm('입고 처리를 취소할까요?\n발주 상태가 "발주중"으로 되돌아가요.'))return;
+  try{
+    // receives 레코드 삭제
+    await api(`receives?id=eq.${receiveId}`,'DELETE');
+    // orders 상태 되돌리기
+    await api(`orders?id=eq.${orderId}`,'PATCH',{status:'발주중',amount:0,receive_date:null,receive_qty:0,received_by:''});
+    showToast('✅ 입고 처리가 취소되었어요. 발주중 상태로 되돌아갔어요.');
+    loadReceiveHistory();
+  }catch(e){
+    alert('취소 실패:\n'+e.message);
+  }
+}
+
 // ── 발주 이력 ──
 async function renderHistory(){
+  // 사용자 부서 기본 선택 (기능5)
+  const defaultDept=currentRole==='admin'?'':currentUserDept;
   renderMain(`<div class="page-title">발주 이력</div>
     <div class="card">
       <div class="filter-bar">
         <select id="h-cat" onchange="filterHistory()"><option value="">전체 대분류</option><option>소모품</option><option>비품</option></select>
-        <select id="h-dept" onchange="filterHistory()"><option value="">전체 부서</option>${DEPT_OPTS}</select>
+        <select id="h-dept" onchange="filterHistory()">
+          <option value="">전체 부서</option>${DEPT_OPTS}
+        </select>
         <select id="h-status" onchange="filterHistory()"><option value="">전체 상태</option><option value="발주중">발주중</option><option value="입고완료">입고완료</option></select>
-        <input id="h-search" placeholder="품목명 검색" oninput="filterHistory()" style="width:140px">
+        <input id="h-search" placeholder="품목명 검색" oninput="filterHistory()" style="width:130px">
+        <button class="btn btn-sm btn-primary" onclick="exportExcel()" style="white-space:nowrap">📊 엑셀 내보내기</button>
       </div>
-      <table><thead><tr><th>발주일</th><th>대분류</th><th>소분류</th><th>품목명</th><th>규격</th><th>업체</th><th>부서</th><th>수량</th><th>입고금액</th><th>등록자</th><th>상태</th></tr></thead>
-      <tbody id="history-table"><tr><td colspan="11" class="empty">로딩 중...</td></tr></tbody></table>
+      <table><thead><tr><th>발주일</th><th>입고일</th><th>대분류</th><th>소분류</th><th>품목명</th><th>규격</th><th>업체</th><th>부서</th><th>수량</th><th>입고금액</th><th>등록자</th><th>상태</th><th>수정</th></tr></thead>
+      <tbody id="history-table"><tr><td colspan="13" class="empty">로딩 중...</td></tr></tbody></table>
       <div id="history-total" style="text-align:right;padding:10px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
     </div>`);
+  // 부서 기본값 설정 (기능5)
+  if(defaultDept){
+    const sel=document.getElementById('h-dept');
+    if(sel)sel.value=defaultDept;
+  }
   const orders=await api('orders?select=*&order=order_date.desc');
   window._allOrders=orders;
-  renderHistoryTable(orders);
+  filterHistory();
 }
 
 function filterHistory(){
-  const cat=document.getElementById('h-cat').value;
-  const dept=document.getElementById('h-dept').value;
-  const status=document.getElementById('h-status').value;
-  const search=document.getElementById('h-search').value.toLowerCase();
+  const cat=document.getElementById('h-cat')?.value||'';
+  const dept=document.getElementById('h-dept')?.value||'';
+  const status=document.getElementById('h-status')?.value||'';
+  const search=(document.getElementById('h-search')?.value||'').toLowerCase();
   let f=window._allOrders||[];
   if(cat)f=f.filter(o=>o.category===cat);
   if(dept)f=f.filter(o=>o.department===dept);
   if(status)f=f.filter(o=>o.status===status);
   if(search)f=f.filter(o=>o.item_name.toLowerCase().includes(search));
+  window._filteredOrders=f; // 엑셀 내보내기용
   renderHistoryTable(f);
 }
 
 function renderHistoryTable(orders){
   const total=orders.filter(o=>o.status==='입고완료').reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
   document.getElementById('history-table').innerHTML=orders.length===0
-    ?'<tr><td colspan="11" class="empty">이력이 없어요</td></tr>'
+    ?'<tr><td colspan="13" class="empty">이력이 없어요</td></tr>'
     :orders.map(o=>`<tr>
       <td>${o.order_date}</td>
+      <td style="color:var(--muted)">${o.receive_date||'-'}</td>
       <td><span class="badge badge-info">${o.category||'-'}</span></td>
       <td style="color:var(--muted)">${o.sub_category||'-'}</td>
       <td>${o.item_name}${o.note?`<br><span style="font-size:11px;color:var(--muted)">${o.note}</span>`:''}</td>
@@ -799,8 +840,94 @@ function renderHistoryTable(orders){
       <td style="text-align:right">${o.amount?parseFloat(o.amount).toFixed(1)+'만원':'-'}</td>
       <td style="color:var(--muted)">${o.created_by||'-'}</td>
       <td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-warn'}">${o.status}</span></td>
+      <td><button class="btn btn-sm" onclick="openEditOrder(${o.id})">✏️ 수정</button></td>
     </tr>`).join('');
   document.getElementById('history-total').textContent=`총 ${orders.length}건 / 입고완료 금액 합계: ${total.toFixed(1)}만원`;
+}
+
+// 기능1: 엑셀(CSV) 내보내기
+function exportExcel(){
+  const filtered=window._filteredOrders||window._allOrders||[];
+  if(filtered.length===0){showToast('내보낼 데이터가 없어요');return}
+  const headers=['발주일','입고일','대분류','소분류','품목명','규격','업체','부서','수량','단위','입고금액(만원)','등록자','상태','비고'];
+  const rows=filtered.map(o=>[
+    o.order_date||'',o.receive_date||'',o.category||'',o.sub_category||'',
+    o.item_name||'',o.spec||'',o.vendor||'',o.department||'',
+    o.qty||0,o.unit||'',o.amount?parseFloat(o.amount).toFixed(1):'',
+    o.created_by||'',o.status||'',o.note||''
+  ]);
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('
+');
+  const bom='﻿'; // Excel 한글 깨짐 방지
+  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`발주이력_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`✅ ${filtered.length}건 엑셀 파일로 저장했어요!`);
+}
+
+// 기능2: 발주 수정 모달
+function openEditOrder(id){
+  const o=(window._allOrders||[]).find(x=>x.id===id);
+  if(!o)return;
+  // 기존 모달 제거
+  const old=document.getElementById('edit-order-modal');if(old)old.remove();
+  const deptOpts=`<option value="">선택</option>${DEPARTMENTS.map(d=>`<option value="${d}" ${o.department===d?'selected':''}>${d}</option>`).join('')}`;
+  const statusOpts=['발주중','입고완료'].map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('');
+  const modal=document.createElement('div');
+  modal.id='edit-order-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  modal.innerHTML=`
+    <div style="background:#fff;border-radius:16px;max-width:560px;width:100%;padding:1.5rem;position:relative">
+      <button onclick="document.getElementById('edit-order-modal').remove()" style="position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:20px;cursor:pointer;color:#888">✕</button>
+      <div style="font-size:16px;font-weight:700;margin-bottom:1.2rem;color:var(--accent)">✏️ 발주 수정</div>
+      <div class="form-row">
+        <div class="form-group"><label>품목명</label><input id="eo-name" value="${o.item_name}"></div>
+        <div class="form-group"><label>업체</label><input id="eo-vendor" value="${o.vendor}"></div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group"><label>규격</label><input id="eo-spec" value="${o.spec||''}"></div>
+        <div class="form-group"><label>수량</label><input id="eo-qty" type="number" value="${o.qty}"></div>
+        <div class="form-group"><label>단위</label><input id="eo-unit" value="${o.unit}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>부서</label><select id="eo-dept">${deptOpts}</select></div>
+        <div class="form-group"><label>발주일</label><input id="eo-date" type="date" value="${o.order_date}"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>상태</label><select id="eo-status">${statusOpts}</select></div>
+        <div class="form-group"><label>입고금액 (만원)</label><input id="eo-amount" type="number" step="0.1" value="${o.amount||''}"></div>
+      </div>
+      <div class="form-group"><label>비고</label><input id="eo-note" value="${o.note||''}"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="document.getElementById('edit-order-modal').remove()">취소</button>
+        <button class="btn btn-primary" onclick="saveEditOrder(${id})">저장</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+async function saveEditOrder(id){
+  const patch={
+    item_name:document.getElementById('eo-name').value.trim(),
+    vendor:document.getElementById('eo-vendor').value.trim(),
+    spec:document.getElementById('eo-spec').value.trim(),
+    qty:parseInt(document.getElementById('eo-qty').value)||0,
+    unit:document.getElementById('eo-unit').value.trim(),
+    department:document.getElementById('eo-dept').value,
+    order_date:document.getElementById('eo-date').value,
+    status:document.getElementById('eo-status').value,
+    amount:parseFloat(document.getElementById('eo-amount').value)||0,
+    note:document.getElementById('eo-note').value.trim(),
+  };
+  await api(`orders?id=eq.${id}`,'PATCH',patch);
+  document.getElementById('edit-order-modal').remove();
+  showToast('✅ 발주 내용이 수정되었어요!');
+  // 목록 새로고침
+  const orders=await api('orders?select=*&order=order_date.desc');
+  window._allOrders=orders;filterHistory();
 }
 
 // ── 발주 필요 ──
