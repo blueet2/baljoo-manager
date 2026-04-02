@@ -210,8 +210,8 @@ function renderNav(){
     nav.innerHTML=`
       <button class="active" onclick="switchTab('dashboard',this)">대시보드</button>
       <button onclick="switchTab('items',this)">품목/업체</button>
-      <button onclick="switchTab('order',this)">발주 등록</button>
-      <button onclick="switchTab('receive',this)">입고 등록</button>
+      <button onclick="switchTab('order',this)">발주 관리</button>
+      <button onclick="switchTab('receive',this)">입고 관리</button>
       <button onclick="switchTab('history',this)">발주 이력</button>
       <button onclick="switchTab('need',this)">발주 필요</button>
       <button onclick="switchTab('users',this)">사용자 관리</button>
@@ -219,8 +219,8 @@ function renderNav(){
   }else{
     nav.innerHTML=`
       <button class="active" onclick="switchTab('dashboard',this)">대시보드</button>
-      <button onclick="switchTab('order',this)">발주 등록</button>
-      <button onclick="switchTab('receive',this)">입고 등록</button>
+      <button onclick="switchTab('order',this)">발주 관리</button>
+      <button onclick="switchTab('receive',this)">입고 관리</button>
       <button onclick="switchTab('history',this)">발주 이력</button>
       <button onclick="switchTab('need',this)">발주 필요</button>`;
   }
@@ -363,7 +363,7 @@ async function deleteItem(id){
 async function renderOrder(){
   const items=await api('items?select=*&order=name.asc');
   window._orderItems=items;
-  renderMain(`<div class="page-title">발주 등록</div>
+  renderMain(`<div class="page-title">발주 관리</div>
     <div class="card">
       <div class="form-row">
         <div class="form-group" style="position:relative">
@@ -390,8 +390,60 @@ async function renderOrder(){
         <div class="form-group"><label>비고 (적요)</label><input id="o-note" placeholder="상세 내용 입력"></div>
       </div>
       <div class="btn-row"><button class="btn btn-primary" onclick="addOrder()">발주 등록</button></div>
-    </div>`);
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 발주 이력</div>
+      <div class="filter-bar">
+        <select id="ol-dept" onchange="loadOrderHistory()"><option value="">전체 부서</option>${DEPT_OPTS}</select>
+        <input type="month" id="ol-from" value="${twoMonthsAgo}" onchange="loadOrderHistory()">
+        <span style="align-self:center;color:var(--muted)">~</span>
+        <input type="month" id="ol-to" value="${thisMonth}" onchange="loadOrderHistory()">
+        <select id="ol-status" onchange="loadOrderHistory()"><option value="">전체 상태</option><option value="발주중">발주중</option><option value="입고완료">입고완료</option></select>
+      </div>
+      <table><thead><tr><th>발주일</th><th>품목명</th><th>규격</th><th>업체</th><th>부서</th><th>수량</th><th>등록자</th><th>상태</th></tr></thead>
+      <tbody id="order-history-table"><tr><td colspan="8" class="empty">로딩 중...</td></tr></tbody></table>
+      <div id="order-history-total" style="text-align:right;padding:8px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
+    </div>\`);
   document.addEventListener('click', closeDropdown);
+  // 최근 2달 기본값
+  const now3=new Date();
+  const el_from=document.getElementById('ol-from');
+  const el_to=document.getElementById('ol-to');
+  if(el_from&&!el_from.value){
+    el_from.value=new Date(now3.getFullYear(),now3.getMonth()-1,1).toISOString().split('T')[0].substring(0,7);
+  }
+  if(el_to&&!el_to.value){el_to.value=now3.toISOString().split('T')[0].substring(0,7);}
+  loadOrderHistory();
+}
+
+async function loadOrderHistory(){
+  const dept=document.getElementById('ol-dept')?.value||'';
+  const from=document.getElementById('ol-from')?.value||'';
+  const to=document.getElementById('ol-to')?.value||'';
+  const status=document.getElementById('ol-status')?.value||'';
+  let q='orders?select=*&order=order_date.desc';
+  if(dept)q+=`&department=eq.${encodeURIComponent(dept)}`;
+  if(from)q+=`&order_date=gte.${from}-01`;
+  if(to){const d=new Date(parseInt(to.split('-')[0]),parseInt(to.split('-')[1]),0);q+=`&order_date=lte.${to}-${d.getDate()}`;}
+  if(status)q+=`&status=eq.${encodeURIComponent(status)}`;
+  const orders=await api(q);
+  const tb=document.getElementById('order-history-table');
+  const tot=document.getElementById('order-history-total');
+  if(!tb)return;
+  tb.innerHTML=orders.length===0
+    ?'<tr><td colspan="8" class="empty">발주 이력이 없어요</td></tr>'
+    :orders.map(o=>`<tr>
+      <td>${o.order_date}</td>
+      <td>${o.item_name}${o.note?`<br><span style="font-size:11px;color:var(--muted)">${o.note}</span>`:''}</td>
+      <td style="color:var(--muted)">${o.spec||'-'}</td>
+      <td>${o.vendor}</td>
+      <td style="color:var(--muted)">${o.department||'-'}</td>
+      <td>${o.qty}${o.unit}</td>
+      <td style="color:var(--muted)">${o.created_by||'-'}</td>
+      <td><span class="badge ${o.status==='입고완료'?'badge-ok':'badge-warn'}">${o.status}</span></td>
+    </tr>`).join('');
+  if(tot)tot.textContent=`총 ${orders.length}건`;
 }
 
 function searchItems(){
@@ -464,7 +516,7 @@ async function addOrder(){
 
 // ── 입고 등록 ──
 async function renderReceive(){
-  renderMain(`<div class="page-title">입고 등록</div>
+  renderMain(`<div class="page-title">입고 관리</div>
     <div class="card">
       <div class="form-row">
         <div class="form-group"><label>팀 선택 *</label><select id="r-dept" onchange="loadPendingByDept()"><option value="">팀을 선택하세요</option>${DEPT_OPTS}</select></div>
@@ -484,7 +536,25 @@ async function renderReceive(){
       </div>
       <div class="form-group"><label>비고</label><input id="r-note" placeholder="메모 (선택)"></div>
       <div class="btn-row"><button class="btn btn-primary" onclick="addReceive()">입고 등록</button></div>
-    </div>`);
+    </div>
+
+    <div class="card">
+      <div class="card-title">📦 입고 이력</div>
+      <div class="filter-bar">
+        <input type="month" id="rl-from" onchange="loadReceiveHistory()">
+        <span style="align-self:center;color:var(--muted)">~</span>
+        <input type="month" id="rl-to" onchange="loadReceiveHistory()">
+      </div>
+      <table><thead><tr><th>입고일</th><th>품목명</th><th>업체</th><th>수량</th><th>금액</th><th>처리자</th></tr></thead>
+      <tbody id="receive-history-table"><tr><td colspan="6" class="empty">로딩 중...</td></tr></tbody></table>
+      <div id="receive-history-total" style="text-align:right;padding:8px 12px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)"></div>
+    </div>\`);
+  // 최근 2달 기본값 설정
+  const now2=new Date();
+  const twoAgo=new Date(now2.getFullYear(),now2.getMonth()-1,1);
+  document.getElementById('rl-from').value=twoAgo.toISOString().split('T')[0].substring(0,7);
+  document.getElementById('rl-to').value=now2.toISOString().split('T')[0].substring(0,7);
+  loadReceiveHistory();
 }
 
 async function loadPendingByDept(){
@@ -519,6 +589,33 @@ async function addReceive(){
   await api(`orders?id=eq.${order_id}`,'PATCH',{status:'입고완료',amount,receive_date,receive_qty:qty,received_by:currentUserName});
   await api('receives','POST',{order_id,item_name:order.item_name,vendor:order.vendor,unit:order.unit,qty,receive_date,note,received_by:currentUserName,amount});
   showToast('입고가 등록되었어요!');renderReceive();
+}
+
+async function loadReceiveHistory(){
+  const now=new Date();
+  const from=document.getElementById('rl-from')?.value||'';
+  const to=document.getElementById('rl-to')?.value||'';
+  const dept=document.getElementById('rl-dept')?.value||'';
+  let q='receives?select=*&order=receive_date.desc';
+  if(from)q+=`&receive_date=gte.${from}-01`;
+  if(to){const d=new Date(parseInt(to.split('-')[0]),parseInt(to.split('-')[1]),0);q+=`&receive_date=lte.${to}-${d.getDate()}`;}
+  if(dept)q+=`&order_id=in.(${(await api(`orders?select=id&department=eq.${encodeURIComponent(dept)}`)).map(o=>o.id).join(',')})`;
+  const receives=await api(q);
+  const tb=document.getElementById('receive-history-table');
+  const tot=document.getElementById('receive-history-total');
+  if(!tb)return;
+  const totalAmt=receives.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  tb.innerHTML=receives.length===0
+    ?'<tr><td colspan="6" class="empty">입고 이력이 없어요</td></tr>'
+    :receives.map(r=>`<tr>
+      <td>${r.receive_date||'-'}</td>
+      <td>${r.item_name}</td>
+      <td>${r.vendor}</td>
+      <td>${r.qty}${r.unit}</td>
+      <td style="text-align:right">${r.amount?parseFloat(r.amount).toFixed(1)+'만원':'-'}</td>
+      <td style="color:var(--muted)">${r.received_by||'-'}</td>
+    </tr>`).join('');
+  if(tot)tot.textContent=`총 ${receives.length}건 / 합계: ${totalAmt.toFixed(1)}만원`;
 }
 
 // ── 발주 이력 ──
