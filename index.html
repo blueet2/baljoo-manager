@@ -286,7 +286,7 @@ async function handleAuth(){
     document.getElementById('auth-btn').textContent='회원가입';
   }else{
     const res=await authApi('token?grant_type=password',{email,password});
-    if(res.error){msgEl.textContent='이메일 또는 비밀번호가 틀렸어요';document.getElementById('auth-btn').textContent='로그인';return}
+    if(res.error){msgEl.textContent='❌ 아이디(이메일) 또는 비밀번호를 확인 후 다시 로그인해 주세요.';document.getElementById('auth-btn').textContent='로그인';return}
     authToken=res.access_token;currentUserId=res.user.id;
     currentUserName=res.user.user_metadata?.name||email.split('@')[0];
     // 프로필 조회 - 컬럼이 없어도 기본값으로 처리
